@@ -1,3 +1,11 @@
+/*
+* ==============================================================================
+* LuckyWheelCustom - Minecraft Plugin
+* Copyright (c) 2026 Daperkz
+*
+* SpinSubCommand
+* ==============================================================================
+*/
 package com.daperkz.luckywheel.commands;
 
 import org.bukkit.ChatColor;

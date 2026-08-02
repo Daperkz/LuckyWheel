@@ -1,4 +1,10 @@
-# Nom de votre projet (pour le nettoyage)
+# ==============================================================================
+# LuckyWheelCustom - Java Minecraft Plugin
+# Copyright (c) 2026 Daperkz
+#
+# Makefile
+# ==============================================================================
+
 PROJECT_NAME = LuckyWheelCustom
 
 all: build

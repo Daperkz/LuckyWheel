@@ -1,3 +1,11 @@
+/*
+* ==============================================================================
+* LuckyWheelCustom - Minecraft Plugin
+* Copyright (c) 2026 Daperkz
+*
+* WheelManager
+* ==============================================================================
+*/
 package com.daperkz.luckywheel;
 
 import java.util.Map;

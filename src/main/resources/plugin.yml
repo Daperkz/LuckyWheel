@@ -1,9 +1,29 @@
+# ==============================================================================
+# LuckyWheelCustom - Java Minecraft Plugin
+# Copyright (c) 2026 Daperkz
+#
+# plugin
+# ==============================================================================
+
 name: LuckyWheelCustom
-version: 1.0.0
+version: '${project.version}'
 main: com.daperkz.luckywheel.Main
 api-version: 1.20
+author: Daperkz
+description: fully customizable lucky wheel plugin
+
+permissions:
+  Daperkz.luckywheel:
+    description: Permission d'utiliser /luckywheel
+    default: true
+  Daperkz.rtp.admin:
+    description: Permission de recharger le plugin et /give
+    default: op
+
 commands:
   luckywheel:
     description: "Commande principale de LuckyWheel"
+    permission: Daperkz.luckywheel
+    permission-message: "<red>Tu n'as pas la permission d'utiliser cette commande."
     usage: "/luckywheel <spin|give> [arguments...]"
     aliases: [lw]

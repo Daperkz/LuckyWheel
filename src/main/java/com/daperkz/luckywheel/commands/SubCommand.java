@@ -1,3 +1,11 @@
+/*
+* ==============================================================================
+* LuckyWheelCustom - Minecraft Plugin
+* Copyright (c) 2026 Daperkz
+*
+* SubCommand
+* ==============================================================================
+*/
 package com.daperkz.luckywheel.commands;
 
 import org.bukkit.command.CommandSender;

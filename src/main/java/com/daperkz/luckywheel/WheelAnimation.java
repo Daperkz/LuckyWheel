@@ -1,3 +1,11 @@
+/*
+* ==============================================================================
+* LuckyWheelCustom - Minecraft Plugin
+* Copyright (c) 2026 Daperkz
+*
+* WheelAnimation
+* ==============================================================================
+*/
 package com.daperkz.luckywheel;
 
 import org.bukkit.Bukkit;
