@@ -6,8 +6,11 @@
 * WheelAnimation
 * ==============================================================================
 */
-package com.daperkz.luckywheel;
+package com.daperkz.luckywheel.wheel;
 
+import com.daperkz.luckywheel.LuckyWheelPlugin;
+import com.daperkz.luckywheel.manager.InventoryManager;
+import com.daperkz.luckywheel.manager.SoundManager;
 import net.kyori.adventure.text.minimessage.MiniMessage;
 import org.bukkit.Bukkit;
 import org.bukkit.Material;
@@ -22,7 +25,7 @@ import java.util.List;
 public class WheelAnimation extends BukkitRunnable {
     private final Player player;
     private final String wheelName;
-    private final Main plugin;
+    private final LuckyWheelPlugin plugin;
     private final Inventory inv;
     private final String winnerKey;
 
@@ -37,7 +40,7 @@ public class WheelAnimation extends BukkitRunnable {
     private int totalCycles = 0;
     private int currentCycle = 0;
 
-    public WheelAnimation(Main plugin, Player player, String wheelName, String winnerKey) {
+    public WheelAnimation(LuckyWheelPlugin plugin, Player player, String wheelName, String winnerKey) {
         this.plugin = plugin;
         this.player = player;
         this.wheelName = wheelName;

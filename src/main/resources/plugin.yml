@@ -7,7 +7,7 @@
 
 name: LuckyWheelCustom
 version: '${project.version}'
-main: com.daperkz.luckywheel.Main
+main: com.daperkz.luckywheel.LuckyWheelPlugin
 api-version: 1.20
 author: Daperkz
 description: fully customizable lucky wheel plugin

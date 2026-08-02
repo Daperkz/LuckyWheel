@@ -6,16 +6,16 @@
 * ReloadSubCommand
 * ==============================================================================
 */
-package com.daperkz.luckywheel.commands;
+package com.daperkz.luckywheel.command.sub;
 
-import com.daperkz.luckywheel.Main;
+import com.daperkz.luckywheel.LuckyWheelPlugin;
 import net.kyori.adventure.text.minimessage.MiniMessage;
 import org.bukkit.command.CommandSender;
 
 public class ReloadSubCommand implements SubCommand {
-    private final Main plugin;
+    private final LuckyWheelPlugin plugin;
 
-    public ReloadSubCommand(Main plugin) {
+    public ReloadSubCommand(LuckyWheelPlugin plugin) {
         this.plugin = plugin;
     }
 

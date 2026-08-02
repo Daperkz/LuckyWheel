@@ -3,15 +3,18 @@
 * LuckyWheelCustom - Minecraft Plugin
 * Copyright (c) 2026 Daperkz
 *
-* Main
+* LuckyWheelPlugin
 * ==============================================================================
 */
 package com.daperkz.luckywheel;
 
-import org.bukkit.plugin.java.JavaPlugin;
+import com.daperkz.luckywheel.command.CommandHandler;
+import com.daperkz.luckywheel.command.WheelTabCompleter;
+import com.daperkz.luckywheel.listener.InventoryClickListener;
 import org.bukkit.NamespacedKey;
+import org.bukkit.plugin.java.JavaPlugin;
 
-public class Main extends JavaPlugin {
+public class LuckyWheelPlugin extends JavaPlugin {
     public static NamespacedKey TICKET_KEY;
     public static NamespacedKey OWNER_KEY;
 
@@ -22,7 +25,7 @@ public class Main extends JavaPlugin {
         saveDefaultConfig();
 
         TICKET_KEY = new NamespacedKey(this, "wheel_ticket");
-        OWNER_KEY = new NamespacedKey(JavaPlugin.getPlugin(Main.class), "owner");
+        OWNER_KEY = new NamespacedKey(JavaPlugin.getPlugin(LuckyWheelPlugin.class), "owner");
 
         if (getCommand("luckywheel") != null) {
             getCommand("luckywheel").setExecutor(new CommandHandler(this));

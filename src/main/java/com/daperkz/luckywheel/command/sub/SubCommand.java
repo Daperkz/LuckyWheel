@@ -6,10 +6,9 @@
 * SubCommand
 * ==============================================================================
 */
-package com.daperkz.luckywheel.commands;
+package com.daperkz.luckywheel.command.sub;
 
 import org.bukkit.command.CommandSender;
-import java.util.List;
 
 public interface SubCommand {
     void execute(CommandSender sender, String[] args);

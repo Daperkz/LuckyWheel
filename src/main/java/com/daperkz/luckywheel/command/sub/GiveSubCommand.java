@@ -6,10 +6,10 @@
 * GiveSubCommand
 * ==============================================================================
 */
-package com.daperkz.luckywheel.commands;
+package com.daperkz.luckywheel.command.sub;
 
-import com.daperkz.luckywheel.InventoryManager;
-import com.daperkz.luckywheel.Main;
+import com.daperkz.luckywheel.LuckyWheelPlugin;
+import com.daperkz.luckywheel.manager.InventoryManager;
 import net.kyori.adventure.text.minimessage.MiniMessage;
 import org.bukkit.Bukkit;
 import org.bukkit.Material;
@@ -21,9 +21,9 @@ import org.bukkit.inventory.meta.ItemMeta;
 import org.bukkit.persistence.PersistentDataType;
 
 public class GiveSubCommand implements SubCommand {
-    private final Main plugin;
+    private final LuckyWheelPlugin plugin;
 
-    public GiveSubCommand(Main plugin) {
+    public GiveSubCommand(LuckyWheelPlugin plugin) {
         this.plugin = plugin;
     }
 
@@ -45,8 +45,8 @@ public class GiveSubCommand implements SubCommand {
 
         ItemMeta meta = item.getItemMeta();
         if (meta != null) {
-            meta.getPersistentDataContainer().set(Main.TICKET_KEY, PersistentDataType.STRING, wheelName);
-            meta.getPersistentDataContainer().set(Main.OWNER_KEY, PersistentDataType.STRING, playerUUID);
+            meta.getPersistentDataContainer().set(LuckyWheelPlugin.TICKET_KEY, PersistentDataType.STRING, wheelName);
+            meta.getPersistentDataContainer().set(LuckyWheelPlugin.OWNER_KEY, PersistentDataType.STRING, playerUUID);
             item.setItemMeta(meta);
         }
         return item;

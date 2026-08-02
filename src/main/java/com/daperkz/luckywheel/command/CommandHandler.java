@@ -6,17 +6,17 @@
 * CommandHandler
 * ==============================================================================
 */
-package com.daperkz.luckywheel;
+package com.daperkz.luckywheel.command;
 
+import com.daperkz.luckywheel.LuckyWheelPlugin;
+import com.daperkz.luckywheel.command.sub.GiveSubCommand;
+import com.daperkz.luckywheel.command.sub.ReloadSubCommand;
+import com.daperkz.luckywheel.command.sub.SpinSubCommand;
+import com.daperkz.luckywheel.command.sub.SubCommand;
+import net.kyori.adventure.text.minimessage.MiniMessage;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandExecutor;
 import org.bukkit.command.CommandSender;
-import net.kyori.adventure.text.minimessage.MiniMessage;
-
-import com.daperkz.luckywheel.commands.SubCommand;
-import com.daperkz.luckywheel.commands.GiveSubCommand;
-import com.daperkz.luckywheel.commands.SpinSubCommand;
-import com.daperkz.luckywheel.commands.ReloadSubCommand;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -24,7 +24,7 @@ import java.util.Map;
 public class CommandHandler implements CommandExecutor {
     private final Map<String, SubCommand> subCommands = new HashMap<>();
 
-    public CommandHandler(Main plugin) {
+    public CommandHandler(LuckyWheelPlugin plugin) {
         registerSubCommand(new GiveSubCommand(plugin));
         registerSubCommand(new SpinSubCommand(plugin));
         registerSubCommand(new ReloadSubCommand(plugin));

@@ -6,12 +6,12 @@
 * SpinSubCommand
 * ==============================================================================
 */
-package com.daperkz.luckywheel.commands;
+package com.daperkz.luckywheel.command.sub;
 
-import com.daperkz.luckywheel.InventoryManager;
-import com.daperkz.luckywheel.Main;
-import com.daperkz.luckywheel.WheelAnimation;
-import com.daperkz.luckywheel.WheelManager;
+import com.daperkz.luckywheel.LuckyWheelPlugin;
+import com.daperkz.luckywheel.manager.InventoryManager;
+import com.daperkz.luckywheel.manager.WheelManager;
+import com.daperkz.luckywheel.wheel.WheelAnimation;
 import net.kyori.adventure.text.minimessage.MiniMessage;
 import org.bukkit.Material;
 import org.bukkit.command.CommandSender;
@@ -23,9 +23,9 @@ import java.util.HashMap;
 import java.util.Map;
 
 public class SpinSubCommand implements SubCommand {
-    private final Main plugin;
+    private final LuckyWheelPlugin plugin;
 
-    public SpinSubCommand(Main plugin) {
+    public SpinSubCommand(LuckyWheelPlugin plugin) {
         this.plugin = plugin;
     }
 

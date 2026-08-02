@@ -6,7 +6,7 @@
 * WheelManager
 * ==============================================================================
 */
-package com.daperkz.luckywheel;
+package com.daperkz.luckywheel.manager;
 
 import java.util.Map;
 import java.util.Random;

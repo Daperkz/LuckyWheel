@@ -6,17 +6,16 @@
 * SoundManager
 * ==============================================================================
 */
-package com.daperkz.luckywheel;
+package com.daperkz.luckywheel.manager;
 
+import com.daperkz.luckywheel.LuckyWheelPlugin;
+import org.bukkit.Bukkit;
 import org.bukkit.Sound;
 import org.bukkit.entity.Player;
-import org.bukkit.configuration.ConfigurationSection;
-import org.bukkit.plugin.java.JavaPlugin;
-import org.bukkit.Bukkit;
 
 public class SoundManager {
 
-    public static void playConfigSound(Player player, Main plugin, String wheelName, String configPath) {
+    public static void playConfigSound(Player player, LuckyWheelPlugin plugin, String wheelName, String configPath) {
         String soundName = plugin.getConfig().getString("wheels." + wheelName + ".sounds." + configPath);
         if (soundName != null) {
             try {

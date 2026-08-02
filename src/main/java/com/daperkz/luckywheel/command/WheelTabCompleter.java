@@ -6,8 +6,9 @@
 * WheelTabCompleter
 * ==============================================================================
 */
-package com.daperkz.luckywheel;
+package com.daperkz.luckywheel.command;
 
+import com.daperkz.luckywheel.LuckyWheelPlugin;
 import org.bukkit.Bukkit;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandSender;
@@ -16,12 +17,14 @@ import org.bukkit.configuration.ConfigurationSection;
 import org.bukkit.entity.Player;
 import org.bukkit.util.StringUtil;
 
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.List;
 
 public class WheelTabCompleter implements TabCompleter {
-    private final Main plugin;
+    private final LuckyWheelPlugin plugin;
 
-    public WheelTabCompleter(Main plugin) {
+    public WheelTabCompleter(LuckyWheelPlugin plugin) {
         this.plugin = plugin;
     }
 

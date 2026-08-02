@@ -6,16 +6,15 @@
 * InventoryManager
 * ==============================================================================
 */
-package com.daperkz.luckywheel;
+package com.daperkz.luckywheel.manager;
 
+import com.daperkz.luckywheel.LuckyWheelPlugin;
 import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.minimessage.MiniMessage;
 import net.kyori.adventure.text.serializer.legacy.LegacyComponentSerializer;
-import org.bukkit.Bukkit;
 import org.bukkit.Material;
 import org.bukkit.configuration.ConfigurationSection;
 import org.bukkit.entity.Player;
-import org.bukkit.inventory.Inventory;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.ItemMeta;
 import org.bukkit.persistence.PersistentDataContainer;
@@ -34,7 +33,7 @@ public class InventoryManager {
         return MiniMessage.miniMessage().deserialize(input);
     }
 
-    public static ItemStack getRandomPrize(Main plugin, String wheelName) {
+    public static ItemStack getRandomPrize(LuckyWheelPlugin plugin, String wheelName) {
         ConfigurationSection prizes = plugin.getConfig().getConfigurationSection("wheels." + wheelName + ".prizes");
         if (prizes == null) return new ItemStack(Material.STONE);
 
@@ -61,14 +60,14 @@ public class InventoryManager {
         if (item.getType() == Material.AIR || !item.hasItemMeta()) return false;
 
         PersistentDataContainer pdc = item.getItemMeta().getPersistentDataContainer();
-        String ticketWheel = pdc.get(Main.TICKET_KEY, PersistentDataType.STRING);
+        String ticketWheel = pdc.get(LuckyWheelPlugin.TICKET_KEY, PersistentDataType.STRING);
 
         if (ticketWheel == null || !ticketWheel.equalsIgnoreCase(wheelName)) {
             player.sendMessage(parseText("<red>Vous devez tenir le bon ticket de '" + wheelName + "' en main !"));
             return false;
         }
 
-        String owner = pdc.get(Main.OWNER_KEY, PersistentDataType.STRING);
+        String owner = pdc.get(LuckyWheelPlugin.OWNER_KEY, PersistentDataType.STRING);
         if (owner == null || !player.getUniqueId().toString().equals(owner)) {
             player.sendMessage(parseText("<red>Ce ticket ne vous appartient pas !"));
             return false;

@@ -6,8 +6,12 @@
 * InventoryClickListener
 * ==============================================================================
 */
-package com.daperkz.luckywheel;
+package com.daperkz.luckywheel.listener;
 
+import com.daperkz.luckywheel.LuckyWheelPlugin;
+import com.daperkz.luckywheel.manager.InventoryManager;
+import com.daperkz.luckywheel.manager.WheelManager;
+import com.daperkz.luckywheel.wheel.WheelAnimation;
 import net.kyori.adventure.text.serializer.plain.PlainTextComponentSerializer;
 import org.bukkit.configuration.ConfigurationSection;
 import org.bukkit.entity.Player;
@@ -22,9 +26,9 @@ import java.util.HashMap;
 import java.util.Map;
 
 public class InventoryClickListener implements Listener {
-    private final Main plugin;
+    private final LuckyWheelPlugin plugin;
 
-    public InventoryClickListener(Main plugin) {
+    public InventoryClickListener(LuckyWheelPlugin plugin) {
         this.plugin = plugin;
     }
 
