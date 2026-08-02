@@ -6,7 +6,7 @@
 # ==============================================================================
 
 name: LuckyWheelCustom
-version: '${project.version}'
+version: '1.1.0'
 main: com.daperkz.luckywheel.Main
 api-version: 1.20
 author: Daperkz

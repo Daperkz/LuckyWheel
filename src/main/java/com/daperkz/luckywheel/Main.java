@@ -21,20 +21,28 @@ public class Main extends JavaPlugin {
         // Crée le dossier de config et copie le config.yml par défaut s'il n'existe pas
         saveDefaultConfig();
 
-        // Enregistre la commande principale
-        getCommand("luckywheel").setExecutor(new CommandHandler(this));
-        getCommand("luckywheel").setTabCompleter(new WheelTabCompleter(this));
-
-        getLogger().info("LuckyWheelCustom a été activé avec succès !");
-        getServer().getPluginManager().registerEvents(new InventoryClickListener(this), this);
-
         TICKET_KEY = new NamespacedKey(this, "wheel_ticket");
         OWNER_KEY = new NamespacedKey(JavaPlugin.getPlugin(Main.class), "owner");
 
+        if (getCommand("luckywheel") != null) {
+            getCommand("luckywheel").setExecutor(new CommandHandler(this));
+            getCommand("luckywheel").setTabCompleter(new WheelTabCompleter(this));
+        }
+
+        getServer().getPluginManager().registerEvents(new InventoryClickListener(this), this);
+        getLogger().info("LuckyWheelCustom a été activé avec succès !");
+
+    }
+
+    public void reloadPluginConfig() {
+        reloadConfig();
+        getServer().getScheduler().cancelTasks(this);
+        getLogger().info("Configuration rechargée et tâches résiduelles annulées !");
     }
 
     @Override
     public void onDisable() {
+        getServer().getScheduler().cancelTasks(this);
         getLogger().info("LuckyWheelCustom a été désactivé.");
     }
 }

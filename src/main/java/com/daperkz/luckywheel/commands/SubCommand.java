@@ -14,4 +14,7 @@ import java.util.List;
 public interface SubCommand {
     void execute(CommandSender sender, String[] args);
     String getName();
+    default String getPermission() {
+        return "Daperkz.luckywheel";
+    }
 }

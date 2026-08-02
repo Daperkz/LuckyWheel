@@ -8,67 +8,49 @@
 */
 package com.daperkz.luckywheel;
 
+import net.kyori.adventure.text.Component;
+import net.kyori.adventure.text.minimessage.MiniMessage;
+import net.kyori.adventure.text.serializer.legacy.LegacyComponentSerializer;
 import org.bukkit.Bukkit;
 import org.bukkit.Material;
 import org.bukkit.configuration.ConfigurationSection;
+import org.bukkit.entity.Player;
 import org.bukkit.inventory.Inventory;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.ItemMeta;
-import org.bukkit.ChatColor;
-import org.bukkit.entity.Player;
-import org.bukkit.persistence.PersistentDataType;
 import org.bukkit.persistence.PersistentDataContainer;
+import org.bukkit.persistence.PersistentDataType;
 
 import java.util.ArrayList;
 import java.util.List;
 
 public class InventoryManager {
 
-    private static String parsePlaceholders(String text, String material, int quantity) {
-        return text.replace("{material}", material.toLowerCase())
-                   .replace("{quantity}", String.valueOf(quantity));
-    }
-
-    public static Inventory createGUI(Main plugin, String wheelName) {
-        Inventory inv = Bukkit.createInventory(null, 9, "Roue: " + wheelName);
-        ConfigurationSection prizes = plugin.getConfig().getConfigurationSection("wheels." + wheelName + ".prizes");
-
-        if (prizes == null)
-            return inv;
-        int slot = 0;
-        for (String key : prizes.getKeys(false)) {
-            if (slot >= inv.getSize())
-                break;
-            ConfigurationSection prize = prizes.getConfigurationSection(key);
-            inv.setItem(slot++, createItemFromConfig(prize));
+    private static Component parseText(String input) {
+        if (input == null) return Component.empty();
+        if (input.contains("&") || input.contains("§")) {
+            return LegacyComponentSerializer.legacyAmpersand().deserialize(input);
         }
-        return inv;
+        return MiniMessage.miniMessage().deserialize(input);
     }
 
     public static ItemStack getRandomPrize(Main plugin, String wheelName) {
         ConfigurationSection prizes = plugin.getConfig().getConfigurationSection("wheels." + wheelName + ".prizes");
-        if (prizes == null)
-            return new ItemStack(Material.STONE); // Sécurité
+        if (prizes == null) return new ItemStack(Material.STONE);
 
         double totalWeight = 0.0;
-        // 1. Calculer le total des chances
         for (String key : prizes.getKeys(false)) {
             totalWeight += prizes.getDouble(key + ".chance", 1.0);
         }
 
-        // 2. Tirer un nombre aléatoire
         double random = Math.random() * totalWeight;
         double currentWeight = 0.0;
 
-        // 3. Trouver l'objet gagnant
         for (String key : prizes.getKeys(false)) {
             currentWeight += prizes.getDouble(key + ".chance", 1.0);
-            
             if (currentWeight >= random) {
                 ConfigurationSection prize = prizes.getConfigurationSection(key);
-                if (prize == null)
-                    continue;
-                return createItemFromConfig(prize);
+                return prize != null ? createItemFromConfig(prize) : new ItemStack(Material.STONE);
             }
         }
         return new ItemStack(Material.STONE);
@@ -76,23 +58,22 @@ public class InventoryManager {
 
     public static boolean consumeTicket(Player player, String wheelName) {
         ItemStack item = player.getInventory().getItemInMainHand();
-        if (item == null || item.getType() == Material.AIR || !item.hasItemMeta())
-            return false;
+        if (item.getType() == Material.AIR || !item.hasItemMeta()) return false;
 
         PersistentDataContainer pdc = item.getItemMeta().getPersistentDataContainer();
-        // Vérifie si l'item a notre clé de données et si c'est la bonne roue
-        String data = item.getItemMeta().getPersistentDataContainer().get(Main.TICKET_KEY, PersistentDataType.STRING);
-        if (data == null || !data.equals(wheelName))
-            return false;
+        String ticketWheel = pdc.get(Main.TICKET_KEY, PersistentDataType.STRING);
 
-        // verification du owner
-        String owner = pdc.get(Main.OWNER_KEY, PersistentDataType.STRING);
-        if (owner == null || !player.getUniqueId().toString().equals(owner)) {
-            player.sendMessage(ChatColor.RED + "Ce ticket ne vous appartient pas !");
+        if (ticketWheel == null || !ticketWheel.equalsIgnoreCase(wheelName)) {
+            player.sendMessage(parseText("<red>Vous devez tenir le bon ticket de '" + wheelName + "' en main !"));
             return false;
         }
-        
-        // Retrait ou réduction du ticket
+
+        String owner = pdc.get(Main.OWNER_KEY, PersistentDataType.STRING);
+        if (owner == null || !player.getUniqueId().toString().equals(owner)) {
+            player.sendMessage(parseText("<red>Ce ticket ne vous appartient pas !"));
+            return false;
+        }
+
         if (item.getAmount() > 1) {
             item.setAmount(item.getAmount() - 1);
         } else {
@@ -101,9 +82,9 @@ public class InventoryManager {
         return true;
     }
 
-    public static ItemStack createItemFromConfig(ConfigurationSection prize) {
-        String matName = prize.getString("material", "PAPER");
-        int qty = Math.max(1, prize.getInt("quantity", 1));
+    public static ItemStack createItemFromConfig(ConfigurationSection section) {
+        String matName = section.getString("material", "PAPER");
+        int qty = Math.max(1, section.getInt("quantity", 1));
         Material mat = Material.getMaterial(matName.toUpperCase());
         if (mat == null) mat = Material.PAPER;
 
@@ -111,17 +92,26 @@ public class InventoryManager {
         ItemMeta meta = item.getItemMeta();
 
         if (meta != null) {
-            List<String> hologram = prize.getStringList("hologram");
+            if (section.contains("name")) {
+                meta.displayName(parseText(section.getString("name")));
+            }
+
+            List<String> hologram = section.getStringList("hologram");
             if (!hologram.isEmpty()) {
-                meta.setDisplayName(ChatColor.translateAlternateColorCodes('&', hologram.get(0)));
-                List<String> lore = new ArrayList<>();
+                meta.displayName(parseText(hologram.get(0)));
+                List<Component> lore = new ArrayList<>();
                 for (int i = 1; i < hologram.size(); i++) {
-                    // C'est ici qu'on remplace les placeholders, identique pour les deux méthodes
-                    lore.add(ChatColor.translateAlternateColorCodes('&', hologram.get(i)
+                    lore.add(parseText(hologram.get(i)
                             .replace("{quantity}", String.valueOf(qty))
                             .replace("{material}", matName)));
                 }
-                meta.setLore(lore);
+                meta.lore(lore);
+            } else if (section.contains("lore")) {
+                List<Component> lore = new ArrayList<>();
+                for (String line : section.getStringList("lore")) {
+                    lore.add(parseText(line));
+                }
+                meta.lore(lore);
             }
             item.setItemMeta(meta);
         }

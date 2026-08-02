@@ -9,39 +9,36 @@
 package com.daperkz.luckywheel;
 
 import org.bukkit.Bukkit;
-import org.bukkit.configuration.ConfigurationSection;
-import org.bukkit.entity.Player;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandSender;
 import org.bukkit.command.TabCompleter;
+import org.bukkit.configuration.ConfigurationSection;
+import org.bukkit.entity.Player;
 import org.bukkit.util.StringUtil;
 
 import java.util.*;
-import java.util.Collections;
 
 public class WheelTabCompleter implements TabCompleter {
     private final Main plugin;
 
-    public WheelTabCompleter(Main plugin)
-    {
+    public WheelTabCompleter(Main plugin) {
         this.plugin = plugin;
     }
 
     @Override
-    public List<String> onTabComplete(CommandSender sender, Command command, String alias, String[] args)
-    {
+    public List<String> onTabComplete(CommandSender sender, Command command, String alias, String[] args) {
         List<String> completions = new ArrayList<>();
 
-        // 1. Racine : choix de la commande
         if (args.length == 1) {
-            StringUtil.copyPartialMatches(args[0], Arrays.asList("give", "spin"), completions);
-        } 
-        // 2. Branche "give"
-        else if (args[0].equalsIgnoreCase("give")) {
+            List<String> subCommands = new ArrayList<>(List.of("spin"));
+            if (sender.hasPermission("Daperkz.luckywheel.admin")) {
+                subCommands.add("give");
+                subCommands.add("reload");
+            }
+            StringUtil.copyPartialMatches(args[0], subCommands, completions);
+        } else if (args[0].equalsIgnoreCase("give") && sender.hasPermission("Daperkz.luckywheel.admin")) {
             completeGive(args, completions);
-        }
-        // 3. Branche "spin"
-        else if (args[0].equalsIgnoreCase("spin")) {
+        } else if (args[0].equalsIgnoreCase("spin")) {
             completeSpin(args, completions);
         }
 
@@ -49,40 +46,29 @@ public class WheelTabCompleter implements TabCompleter {
         return completions;
     }
 
-    private void completeGive(String[] args, List<String> completions)
-    {
-        // args[1] = Roue
-        if (args.length == 2) {
-            if (plugin.getConfig().getConfigurationSection("wheels") != null) {
-                StringUtil.copyPartialMatches(args[1], plugin.getConfig().getConfigurationSection("wheels").getKeys(false), completions);
-            }
-        }
-        // args[2] = Joueur
-        else if (args.length == 3) {
-            List<String> players = new ArrayList<>();
-            for (Player p : Bukkit.getOnlinePlayers()) players.add(p.getName());
+    private void completeGive(String[] args, List<String> completions) {
+        ConfigurationSection wheels = plugin.getConfig().getConfigurationSection("wheels");
+
+        if (args.length == 2 && wheels != null) {
+            StringUtil.copyPartialMatches(args[1], wheels.getKeys(false), completions);
+        } else if (args.length == 3) {
+            List<String> players = Bukkit.getOnlinePlayers().stream().map(Player::getName).toList();
             StringUtil.copyPartialMatches(args[2], players, completions);
-        }
-        // args[3] = Quantité
-        else if (args.length == 4) {
-            StringUtil.copyPartialMatches(args[3], Arrays.asList("1", "16", "32", "64"), completions);
-        }
-        // args[4] = ID du prix
-        else if (args.length == 5) {
+        } else if (args.length == 4) {
+            StringUtil.copyPartialMatches(args[3], List.of("1", "16", "32", "64"), completions);
+        } else if (args.length == 5 && wheels != null) {
             String wheelName = args[1];
-            if (plugin.getConfig().contains("wheels." + wheelName + ".prizes")) {
-                StringUtil.copyPartialMatches(args[4], plugin.getConfig().getConfigurationSection("wheels." + wheelName + ".prizes").getKeys(false), completions);
+            ConfigurationSection prizes = plugin.getConfig().getConfigurationSection("wheels." + wheelName + ".prizes");
+            if (prizes != null) {
+                StringUtil.copyPartialMatches(args[4], prizes.getKeys(false), completions);
             }
         }
     }
 
-    private void completeSpin(String[] args, List<String> completions)
-    {
-        // args[1] = Roue
-        if (args.length == 2) {
-            if (plugin.getConfig().getConfigurationSection("wheels") != null) {
-                StringUtil.copyPartialMatches(args[1], plugin.getConfig().getConfigurationSection("wheels").getKeys(false), completions);
-            }
+    private void completeSpin(String[] args, List<String> completions) {
+        ConfigurationSection wheels = plugin.getConfig().getConfigurationSection("wheels");
+        if (args.length == 2 && wheels != null) {
+            StringUtil.copyPartialMatches(args[1], wheels.getKeys(false), completions);
         }
     }
 }

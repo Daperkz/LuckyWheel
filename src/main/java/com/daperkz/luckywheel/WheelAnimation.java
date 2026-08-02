@@ -8,20 +8,16 @@
 */
 package com.daperkz.luckywheel;
 
+import net.kyori.adventure.text.minimessage.MiniMessage;
 import org.bukkit.Bukkit;
 import org.bukkit.Material;
+import org.bukkit.configuration.ConfigurationSection;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.Inventory;
 import org.bukkit.inventory.ItemStack;
-import org.bukkit.inventory.meta.ItemMeta;
 import org.bukkit.scheduler.BukkitRunnable;
-import org.bukkit.configuration.ConfigurationSection;
-import org.bukkit.ChatColor;
-import org.bukkit.Sound;
-import java.util.*;
 
-import com.daperkz.luckywheel.SoundManager;
-
+import java.util.List;
 
 public class WheelAnimation extends BukkitRunnable {
     private final Player player;
@@ -29,13 +25,14 @@ public class WheelAnimation extends BukkitRunnable {
     private final Main plugin;
     private final Inventory inv;
     private final String winnerKey;
+
     private int ticks = 0;
-    private int totalTicks = 0;
-    private int delay = 0;
+    private final int totalTicks;
+    private int delay;
     private int currentDelayCount = 0;
-    private int increment = 0;
-    private int startDelay = 0;
-    private int winningSlot = 0;
+    private final int increment;
+    private final int startDelay;
+    private final int winningSlot;
     private final ItemStack winningItem;
     private int totalCycles = 0;
     private int currentCycle = 0;
@@ -47,61 +44,60 @@ public class WheelAnimation extends BukkitRunnable {
         this.winnerKey = winnerKey;
 
         ConfigurationSection settings = plugin.getConfig().getConfigurationSection("wheels." + wheelName + ".settings");
-        this.totalTicks = settings.getInt("total-ticks", 50);
-        this.delay = settings.getInt("animation-speed", 1);
-        this.increment = settings.getInt("slowdown-ticks", 2);
-        this.startDelay = settings.getInt("start-delay-ticks", 30);
-        this.totalCycles = getTotalCycles();
-        
-        this.winningSlot = settings.getInt("winning-slot", 5);
-        ConfigurationSection prize = plugin.getConfig().getConfigurationSection("wheels." + wheelName + ".prizes." + winnerKey);
-        this.winningItem = InventoryManager.createItemFromConfig(prize);
+        this.totalTicks = settings != null ? settings.getInt("total-ticks", 55) : 55;
+        this.delay = settings != null ? settings.getInt("animation-speed", 1) : 1;
+        this.increment = settings != null ? settings.getInt("slowdown-ticks", 2) : 2;
+        this.startDelay = settings != null ? settings.getInt("start-delay-ticks", 30) : 30;
+        this.winningSlot = settings != null ? settings.getInt("winning-slot", 5) : 5;
 
-        this.inv = Bukkit.createInventory(null, 9, "Roue: " + wheelName);
+        ConfigurationSection prize = plugin.getConfig().getConfigurationSection("wheels." + wheelName + ".prizes." + winnerKey);
+        this.winningItem = prize != null ? InventoryManager.createItemFromConfig(prize) : new ItemStack(Material.STONE);
+
+        this.totalCycles = calculateTotalCycles();
+        this.inv = Bukkit.createInventory(null, 9, MiniMessage.miniMessage().deserialize("<dark_gray>Roue: <gold>" + wheelName));
 
         SoundManager.playConfigSound(player, plugin, wheelName, "open");
         player.openInventory(inv);
     }
 
-    private int getTotalCycles()
-    {
+    private int calculateTotalCycles() {
         int simulatedTicks = 0;
         int simulatedDelay = this.delay;
         int simulatedCurrentDelay = 0;
+        int cycles = 0;
 
         while (simulatedTicks < this.totalTicks) {
             if (simulatedTicks >= this.startDelay) {
                 simulatedDelay += this.increment;
             }
             if (simulatedCurrentDelay >= simulatedDelay) {
-                this.totalCycles++;
+                cycles++;
                 simulatedCurrentDelay = 0;
             }
             simulatedCurrentDelay++;
             simulatedTicks++;
         }
-        return totalCycles;
-    }
-
-    public Inventory getInventory() {
-        return this.inv;
+        return cycles;
     }
 
     @Override
     public void run() {
+        if (!player.isOnline()) {
+            this.cancel();
+            return;
+        }
+
         if (ticks >= this.totalTicks) {
             this.cancel();
             finish();
             return;
         }
 
-        // Accélération du délai pour simuler le freinage (ralentissement)
         if (ticks >= this.startDelay) {
             this.delay += this.increment;
         }
 
         if (currentDelayCount >= this.delay) {
-            // Déplacement des items
             this.currentCycle++;
             updateInventoryVisuals();
             SoundManager.playConfigSound(player, plugin, wheelName, "spin");
@@ -112,15 +108,12 @@ public class WheelAnimation extends BukkitRunnable {
     }
 
     private void updateInventoryVisuals() {
-        // Crée un effet de défilement en décalant les items
         ItemStack[] items = inv.getContents();
         for (int i = 8; i > 0; i--) {
             items[i] = items[i - 1];
         }
-        int ticksRemaining = (totalTicks - ticks);
-    
+
         if (currentCycle == (totalCycles - (this.winningSlot - 1))) {
-            // ou au slot 0 selon ton design
             items[0] = winningItem;
         } else {
             items[0] = InventoryManager.getRandomPrize(plugin, wheelName);
@@ -129,15 +122,9 @@ public class WheelAnimation extends BukkitRunnable {
     }
 
     private void finish() {
-       ConfigurationSection prizesSection = plugin.getConfig().getConfigurationSection("wheels." + wheelName + ".prizes");
-        
-        if (prizesSection == null || winnerKey == null)
-            return;
+        ConfigurationSection prize = plugin.getConfig().getConfigurationSection("wheels." + wheelName + ".prizes." + winnerKey);
+        if (prize == null) return;
 
-        ConfigurationSection prize = prizesSection.getConfigurationSection(winnerKey);
-        if (prize == null)
-            return;
-        
         String customSound = prize.getString("sound");
         if (customSound != null) {
             SoundManager.playDirectSound(player, customSound);
@@ -145,21 +132,16 @@ public class WheelAnimation extends BukkitRunnable {
             SoundManager.playConfigSound(player, plugin, wheelName, "win_default");
         }
 
-        // 4. GESTION DES COMMANDES (Priorité)
         List<String> commands = prize.getStringList("commands");
-        if (commands != null && !commands.isEmpty()) {
+        if (!commands.isEmpty()) {
             for (String cmd : commands) {
                 String formattedCmd = cmd.replace("%player%", player.getName());
                 Bukkit.dispatchCommand(Bukkit.getConsoleSender(), formattedCmd);
             }
-        } 
-        // 5. GESTION DU DON D'ITEM (Si pas de commandes et pas une Barrière)
-        else {
-            if (winningItem.getType() != Material.BARRIER) {
-                player.getInventory().addItem(winningItem);
-            }
+        } else if (winningItem.getType() != Material.BARRIER) {
+            player.getInventory().addItem(winningItem);
         }
-        // Petit message sympa avec le nom de l'objet gagnant (hologram[0] si possible, sinon la clé)
-        player.sendMessage(ChatColor.GREEN + "La roue s'est arrêtée ! Vous remportez votre prix.");
+
+        player.sendMessage(MiniMessage.miniMessage().deserialize("<green>La roue s'est arrêtée ! Vous remportez votre prix."));
     }
 }

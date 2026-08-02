@@ -1,0 +1,12 @@
+com/daperkz/luckywheel/WheelManager.class
+com/daperkz/luckywheel/InventoryClickListener.class
+com/daperkz/luckywheel/commands/GiveSubCommand.class
+com/daperkz/luckywheel/WheelTabCompleter.class
+com/daperkz/luckywheel/CommandHandler.class
+com/daperkz/luckywheel/InventoryManager.class
+com/daperkz/luckywheel/commands/SpinSubCommand.class
+com/daperkz/luckywheel/commands/SubCommand.class
+com/daperkz/luckywheel/WheelAnimation.class
+com/daperkz/luckywheel/SoundManager.class
+com/daperkz/luckywheel/Main.class
+com/daperkz/luckywheel/commands/ReloadSubCommand.class
