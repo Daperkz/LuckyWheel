@@ -15,6 +15,7 @@ import net.kyori.adventure.text.serializer.legacy.LegacyComponentSerializer;
 import org.bukkit.Material;
 import org.bukkit.configuration.ConfigurationSection;
 import org.bukkit.entity.Player;
+import org.bukkit.inventory.EquipmentSlot;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.ItemMeta;
 import org.bukkit.persistence.PersistentDataContainer;
@@ -22,15 +23,79 @@ import org.bukkit.persistence.PersistentDataType;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
 
 public class InventoryManager {
 
-    private static Component parseText(String input) {
+    public static Component parseText(String input) {
         if (input == null) return Component.empty();
         if (input.contains("&") || input.contains("§")) {
             return LegacyComponentSerializer.legacyAmpersand().deserialize(input);
         }
         return MiniMessage.miniMessage().deserialize(input);
+    }
+
+    /**
+     * Extracts the wheel identifier from an item's PDC if present.
+     */
+    public static Optional<String> getTicketWheel(ItemStack item) {
+        if (item == null || item.getType() == Material.AIR || !item.hasItemMeta()) {
+            return Optional.empty();
+        }
+        ItemMeta meta = item.getItemMeta();
+        PersistentDataContainer pdc = meta.getPersistentDataContainer();
+        return Optional.ofNullable(pdc.get(LuckyWheelPlugin.TICKET_KEY, PersistentDataType.STRING));
+    }
+
+    /**
+     * Validates if a player owns the ticket they are holding.
+     */
+    public static boolean isTicketOwner(ItemStack item, Player player) {
+        if (item == null || !item.hasItemMeta()) return false;
+        PersistentDataContainer pdc = item.getItemMeta().getPersistentDataContainer();
+        String owner = pdc.get(LuckyWheelPlugin.OWNER_KEY, PersistentDataType.STRING);
+        return owner != null && owner.equals(player.getUniqueId().toString());
+    }
+
+    /**
+     * Validates and consumes one ticket item from the specified hand.
+     *
+     * @return true if successfully consumed, false otherwise.
+     */
+    public static boolean tryConsumeTicket(Player player, EquipmentSlot hand, String expectedWheel) {
+        ItemStack item = (hand == EquipmentSlot.OFF_HAND) 
+                ? player.getInventory().getItemInOffHand() 
+                : player.getInventory().getItemInMainHand();
+
+        Optional<String> ticketWheelOpt = getTicketWheel(item);
+        
+        if (ticketWheelOpt.isEmpty()) {
+            return false;
+        }
+
+        String ticketWheel = ticketWheelOpt.get();
+
+        if (!ticketWheel.equalsIgnoreCase(expectedWheel)) {
+            player.sendMessage(parseText("<red>Vous devez tenir le bon ticket de '" + expectedWheel + "' en main !"));
+            return false;
+        }
+
+        if (!isTicketOwner(item, player)) {
+            player.sendMessage(parseText("<red>Ce ticket ne vous appartient pas !"));
+            return false;
+        }
+
+        // Consume item safely
+        if (item.getAmount() > 1) {
+            item.setAmount(item.getAmount() - 1);
+        } else {
+            if (hand == EquipmentSlot.OFF_HAND) {
+                player.getInventory().setItemInOffHand(null);
+            } else {
+                player.getInventory().setItemInMainHand(null);
+            }
+        }
+        return true;
     }
 
     public static ItemStack getRandomPrize(LuckyWheelPlugin plugin, String wheelName) {
@@ -53,32 +118,6 @@ public class InventoryManager {
             }
         }
         return new ItemStack(Material.STONE);
-    }
-
-    public static boolean consumeTicket(Player player, String wheelName) {
-        ItemStack item = player.getInventory().getItemInMainHand();
-        if (item.getType() == Material.AIR || !item.hasItemMeta()) return false;
-
-        PersistentDataContainer pdc = item.getItemMeta().getPersistentDataContainer();
-        String ticketWheel = pdc.get(LuckyWheelPlugin.TICKET_KEY, PersistentDataType.STRING);
-
-        if (ticketWheel == null || !ticketWheel.equalsIgnoreCase(wheelName)) {
-            player.sendMessage(parseText("<red>Vous devez tenir le bon ticket de '" + wheelName + "' en main !"));
-            return false;
-        }
-
-        String owner = pdc.get(LuckyWheelPlugin.OWNER_KEY, PersistentDataType.STRING);
-        if (owner == null || !player.getUniqueId().toString().equals(owner)) {
-            player.sendMessage(parseText("<red>Ce ticket ne vous appartient pas !"));
-            return false;
-        }
-
-        if (item.getAmount() > 1) {
-            item.setAmount(item.getAmount() - 1);
-        } else {
-            player.getInventory().setItemInMainHand(null);
-        }
-        return true;
     }
 
     public static ItemStack createItemFromConfig(ConfigurationSection section) {

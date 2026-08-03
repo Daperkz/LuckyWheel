@@ -20,10 +20,12 @@ import org.bukkit.event.Listener;
 import org.bukkit.event.block.Action;
 import org.bukkit.event.inventory.InventoryClickEvent;
 import org.bukkit.event.player.PlayerInteractEvent;
+import org.bukkit.inventory.EquipmentSlot;
 import org.bukkit.inventory.ItemStack;
 
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Optional;
 
 public class InventoryClickListener implements Listener {
     private final LuckyWheelPlugin plugin;
@@ -34,30 +36,44 @@ public class InventoryClickListener implements Listener {
 
     @EventHandler
     public void onPlayerInteract(PlayerInteractEvent event) {
-        if (event.getAction() != Action.RIGHT_CLICK_AIR && event.getAction() != Action.RIGHT_CLICK_BLOCK) return;
+        if (event.getAction() != Action.RIGHT_CLICK_AIR && event.getAction() != Action.RIGHT_CLICK_BLOCK) {
+            return;
+        }
+
+        // Only process main hand interactions to prevent double-firing off-hand triggers
+        if (event.getHand() != EquipmentSlot.HAND) {
+            return;
+        }
 
         Player player = event.getPlayer();
-        ItemStack item = player.getInventory().getItemInMainHand();
-        if (item.getType().isAir() || !item.hasItemMeta()) return;
+        ItemStack item = event.getItem();
 
-        ConfigurationSection wheels = plugin.getConfig().getConfigurationSection("wheels");
-        if (wheels == null) return;
+        // Guard clause: check if the item is valid ticket
+        Optional<String> ticketWheelOpt = InventoryManager.getTicketWheel(item);
+        if (ticketWheelOpt.isEmpty()) {
+            return;
+        }
 
-        for (String wheelName : wheels.getKeys(false)) {
-            if (InventoryManager.consumeTicket(player, wheelName)) {
-                event.setCancelled(true);
+        String wheelName = ticketWheelOpt.get();
 
-                Map<String, Integer> prizesMap = new HashMap<>();
-                ConfigurationSection section = plugin.getConfig().getConfigurationSection("wheels." + wheelName + ".prizes");
-                if (section != null) {
-                    for (String key : section.getKeys(false)) {
-                        prizesMap.put(key, section.getInt(key + ".chance"));
-                    }
+        // Check if wheel actually exists in configuration
+        if (!plugin.getConfig().contains("wheels." + wheelName)) {
+            return;
+        }
+
+        event.setCancelled(true);
+
+        // Consume ticket and start wheel
+        if (InventoryManager.tryConsumeTicket(player, EquipmentSlot.HAND, wheelName)) {
+            Map<String, Integer> prizesMap = new HashMap<>();
+            ConfigurationSection section = plugin.getConfig().getConfigurationSection("wheels." + wheelName + ".prizes");
+            if (section != null) {
+                for (String key : section.getKeys(false)) {
+                    prizesMap.put(key, section.getInt(key + ".chance"));
                 }
-                String winnerKey = WheelManager.getPrize(prizesMap);
-                new WheelAnimation(plugin, player, wheelName, winnerKey).runTaskTimer(plugin, 0L, 2L);
-                return;
             }
+            String winnerKey = WheelManager.getPrize(prizesMap);
+            new WheelAnimation(plugin, player, wheelName, winnerKey).runTaskTimer(plugin, 0L, 2L);
         }
     }
 

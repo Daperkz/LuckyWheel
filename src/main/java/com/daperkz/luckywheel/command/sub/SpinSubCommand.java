@@ -17,6 +17,7 @@ import org.bukkit.Material;
 import org.bukkit.command.CommandSender;
 import org.bukkit.configuration.ConfigurationSection;
 import org.bukkit.entity.Player;
+import org.bukkit.inventory.EquipmentSlot;
 import org.bukkit.inventory.ItemStack;
 
 import java.util.HashMap;
@@ -53,7 +54,7 @@ public class SpinSubCommand implements SubCommand {
             return;
         }
 
-        if (!InventoryManager.consumeTicket(player, wheelName)) {
+        if (!InventoryManager.tryConsumeTicket(player, EquipmentSlot.HAND, wheelName)) {
             return;
         }
 
