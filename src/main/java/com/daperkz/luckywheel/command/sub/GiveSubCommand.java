@@ -15,10 +15,13 @@ import org.bukkit.Bukkit;
 import org.bukkit.Material;
 import org.bukkit.command.CommandSender;
 import org.bukkit.configuration.ConfigurationSection;
+import org.bukkit.configuration.file.YamlConfiguration;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.ItemMeta;
 import org.bukkit.persistence.PersistentDataType;
+
+import java.util.Optional;
 
 public class GiveSubCommand implements SubCommand {
     private final LuckyWheelPlugin plugin;
@@ -28,11 +31,17 @@ public class GiveSubCommand implements SubCommand {
     }
 
     private ItemStack createItem(String wheelName, String prizeId, int amount, String playerUUID) {
+        Optional<YamlConfiguration> configOpt = plugin.getWheelConfigManager().getWheelConfig(wheelName);
+        if (configOpt.isEmpty()) {
+            return new ItemStack(Material.PAPER);
+        }
+        YamlConfiguration config = configOpt.get();
         ConfigurationSection section;
-        if (prizeId != null && plugin.getConfig().contains("wheels." + wheelName + ".prizes." + prizeId)) {
-            section = plugin.getConfig().getConfigurationSection("wheels." + wheelName + ".prizes." + prizeId);
+
+        if (prizeId != null && config.contains("prizes." + prizeId)) {
+            section = config.getConfigurationSection("prizes." + prizeId);
         } else {
-            section = plugin.getConfig().getConfigurationSection("wheels." + wheelName + ".ticket");
+            section = config.getConfigurationSection("ticket");
         }
 
         if (section == null) {
@@ -60,7 +69,7 @@ public class GiveSubCommand implements SubCommand {
         }
 
         String wheelName = args[1];
-        if (!plugin.getConfig().contains("wheels." + wheelName)) {
+        if (!plugin.getWheelConfigManager().exists(wheelName)) {
             sender.sendMessage(MiniMessage.miniMessage().deserialize("<red>Cette roue n'existe pas."));
             return;
         }

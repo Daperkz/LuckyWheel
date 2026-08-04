@@ -16,14 +16,12 @@ import org.bukkit.entity.Player;
 public class SoundManager {
 
     public static void playConfigSound(Player player, LuckyWheelPlugin plugin, String wheelName, String configPath) {
-        String soundName = plugin.getConfig().getString("wheels." + wheelName + ".sounds." + configPath);
-        if (soundName != null) {
-            try {
-                player.playSound(player.getLocation(), Sound.valueOf(soundName.toUpperCase()), 1.0f, 1.0f);
-            } catch (IllegalArgumentException | NullPointerException e) {
-                plugin.getLogger().warning("Son invalide dans la config: " + soundName);
+        plugin.getWheelConfigManager().getWheelConfig(wheelName).ifPresent(config -> {
+            String soundName = config.getString("sounds." + configPath);
+            if (soundName != null) {
+                playDirectSound(player, soundName);
             }
-        }
+        });
     }
 
     public static void playDirectSound(Player player, String soundName) {

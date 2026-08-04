@@ -16,12 +16,14 @@ import net.kyori.adventure.text.minimessage.MiniMessage;
 import org.bukkit.Material;
 import org.bukkit.command.CommandSender;
 import org.bukkit.configuration.ConfigurationSection;
+import org.bukkit.configuration.file.YamlConfiguration;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.EquipmentSlot;
 import org.bukkit.inventory.ItemStack;
 
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Optional;
 
 public class SpinSubCommand implements SubCommand {
     private final LuckyWheelPlugin plugin;
@@ -43,7 +45,7 @@ public class SpinSubCommand implements SubCommand {
         }
 
         String wheelName = args[1];
-        if (!plugin.getConfig().contains("wheels." + wheelName)) {
+        if (!plugin.getWheelConfigManager().exists(wheelName)) {
             player.sendMessage(MiniMessage.miniMessage().deserialize("<red>Cette roue n'existe pas."));
             return;
         }
@@ -59,10 +61,13 @@ public class SpinSubCommand implements SubCommand {
         }
 
         Map<String, Integer> prizesMap = new HashMap<>();
-        ConfigurationSection section = plugin.getConfig().getConfigurationSection("wheels." + wheelName + ".prizes");
-        if (section != null) {
-            for (String key : section.getKeys(false)) {
-                prizesMap.put(key, section.getInt(key + ".chance"));
+        Optional<YamlConfiguration> configOpt = plugin.getWheelConfigManager().getWheelConfig(wheelName);
+        if (configOpt.isPresent()) {
+            ConfigurationSection section = configOpt.get().getConfigurationSection("prizes");
+            if (section != null) {
+                for (String key : section.getKeys(false)) {
+                    prizesMap.put(key, section.getInt(key + ".chance"));
+                }
             }
         }
 

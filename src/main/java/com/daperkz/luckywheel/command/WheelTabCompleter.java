@@ -14,12 +14,14 @@ import org.bukkit.command.Command;
 import org.bukkit.command.CommandSender;
 import org.bukkit.command.TabCompleter;
 import org.bukkit.configuration.ConfigurationSection;
+import org.bukkit.configuration.file.YamlConfiguration;
 import org.bukkit.entity.Player;
 import org.bukkit.util.StringUtil;
 
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
+import java.util.Optional;
 
 public class WheelTabCompleter implements TabCompleter {
     private final LuckyWheelPlugin plugin;
@@ -50,28 +52,28 @@ public class WheelTabCompleter implements TabCompleter {
     }
 
     private void completeGive(String[] args, List<String> completions) {
-        ConfigurationSection wheels = plugin.getConfig().getConfigurationSection("wheels");
-
-        if (args.length == 2 && wheels != null) {
-            StringUtil.copyPartialMatches(args[1], wheels.getKeys(false), completions);
+        if (args.length == 2) {
+            StringUtil.copyPartialMatches(args[1], plugin.getWheelConfigManager().getWheelNames(), completions);
         } else if (args.length == 3) {
             List<String> players = Bukkit.getOnlinePlayers().stream().map(Player::getName).toList();
             StringUtil.copyPartialMatches(args[2], players, completions);
         } else if (args.length == 4) {
             StringUtil.copyPartialMatches(args[3], List.of("1", "16", "32", "64"), completions);
-        } else if (args.length == 5 && wheels != null) {
+        } else if (args.length == 5) {
             String wheelName = args[1];
-            ConfigurationSection prizes = plugin.getConfig().getConfigurationSection("wheels." + wheelName + ".prizes");
-            if (prizes != null) {
-                StringUtil.copyPartialMatches(args[4], prizes.getKeys(false), completions);
+            Optional<YamlConfiguration> configOpt = plugin.getWheelConfigManager().getWheelConfig(wheelName);
+            if (configOpt.isPresent()) {
+                ConfigurationSection prizes = configOpt.get().getConfigurationSection("prizes");
+                if (prizes != null) {
+                    StringUtil.copyPartialMatches(args[4], prizes.getKeys(false), completions);
+                }
             }
         }
     }
 
     private void completeSpin(String[] args, List<String> completions) {
-        ConfigurationSection wheels = plugin.getConfig().getConfigurationSection("wheels");
-        if (args.length == 2 && wheels != null) {
-            StringUtil.copyPartialMatches(args[1], wheels.getKeys(false), completions);
+        if (args.length == 2) {
+            StringUtil.copyPartialMatches(args[1], plugin.getWheelConfigManager().getWheelNames(), completions);
         }
     }
 }

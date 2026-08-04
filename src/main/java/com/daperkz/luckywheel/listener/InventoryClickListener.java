@@ -14,6 +14,7 @@ import com.daperkz.luckywheel.manager.WheelManager;
 import com.daperkz.luckywheel.wheel.WheelAnimation;
 import net.kyori.adventure.text.serializer.plain.PlainTextComponentSerializer;
 import org.bukkit.configuration.ConfigurationSection;
+import org.bukkit.configuration.file.YamlConfiguration;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
@@ -40,7 +41,6 @@ public class InventoryClickListener implements Listener {
             return;
         }
 
-        // Only process main hand interactions to prevent double-firing off-hand triggers
         if (event.getHand() != EquipmentSlot.HAND) {
             return;
         }
@@ -48,7 +48,6 @@ public class InventoryClickListener implements Listener {
         Player player = event.getPlayer();
         ItemStack item = event.getItem();
 
-        // Guard clause: check if the item is valid ticket
         Optional<String> ticketWheelOpt = InventoryManager.getTicketWheel(item);
         if (ticketWheelOpt.isEmpty()) {
             return;
@@ -56,20 +55,22 @@ public class InventoryClickListener implements Listener {
 
         String wheelName = ticketWheelOpt.get();
 
-        // Check if wheel actually exists in configuration
-        if (!plugin.getConfig().contains("wheels." + wheelName)) {
+        if (!plugin.getWheelConfigManager().exists(wheelName)) {
             return;
         }
 
         event.setCancelled(true);
 
-        // Consume ticket and start wheel
         if (InventoryManager.tryConsumeTicket(player, EquipmentSlot.HAND, wheelName)) {
             Map<String, Integer> prizesMap = new HashMap<>();
-            ConfigurationSection section = plugin.getConfig().getConfigurationSection("wheels." + wheelName + ".prizes");
-            if (section != null) {
-                for (String key : section.getKeys(false)) {
-                    prizesMap.put(key, section.getInt(key + ".chance"));
+            Optional<YamlConfiguration> configOpt = plugin.getWheelConfigManager().getWheelConfig(wheelName);
+
+            if (configOpt.isPresent()) {
+                ConfigurationSection section = configOpt.get().getConfigurationSection("prizes");
+                if (section != null) {
+                    for (String key : section.getKeys(false)) {
+                        prizesMap.put(key, section.getInt(key + ".chance"));
+                    }
                 }
             }
             String winnerKey = WheelManager.getPrize(prizesMap);
@@ -79,7 +80,8 @@ public class InventoryClickListener implements Listener {
 
     @EventHandler
     public void onInventoryClick(InventoryClickEvent event) {
-        if (event.getView().title() == null) return;
+        if (event.getView().title() == null)
+            return;
         String rawTitle = PlainTextComponentSerializer.plainText().serialize(event.getView().title());
         if (rawTitle.startsWith("Roue: ")) {
             event.setCancelled(true);
