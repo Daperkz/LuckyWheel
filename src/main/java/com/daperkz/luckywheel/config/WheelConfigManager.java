@@ -41,10 +41,12 @@ public class WheelConfigManager {
     }
 
     public Optional<YamlConfiguration> getWheelConfig(String wheelId) {
+        if (wheelId == null) return Optional.empty();
         return Optional.ofNullable(loadedWheels.get(wheelId.toLowerCase()));
     }
 
     public boolean exists(String wheelId) {
+        if (wheelId == null) return false;
         return loadedWheels.containsKey(wheelId.toLowerCase());
     }
 

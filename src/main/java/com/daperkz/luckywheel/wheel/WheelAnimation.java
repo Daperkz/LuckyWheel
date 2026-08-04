@@ -135,7 +135,7 @@ public class WheelAnimation extends BukkitRunnable {
         if (configOpt.isEmpty())
             return;
 
-        ConfigurationSection prize = plugin.getConfig().getConfigurationSection("wheels." + wheelName + ".prizes." + winnerKey);
+        ConfigurationSection prize = configOpt.get().getConfigurationSection("prizes." + winnerKey);
         if (prize == null)
             return;
 

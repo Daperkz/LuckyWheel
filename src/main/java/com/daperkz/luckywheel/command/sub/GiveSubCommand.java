@@ -69,7 +69,7 @@ public class GiveSubCommand implements SubCommand {
         }
 
         String wheelName = args[1];
-        if (!plugin.getConfig().contains("wheels." + wheelName)) {
+        if (!plugin.getWheelConfigManager().exists(wheelName)) {
             sender.sendMessage(MiniMessage.miniMessage().deserialize("<red>Cette roue n'existe pas."));
             return;
         }
