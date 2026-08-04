@@ -15,12 +15,14 @@ import net.kyori.adventure.text.minimessage.MiniMessage;
 import org.bukkit.Bukkit;
 import org.bukkit.Material;
 import org.bukkit.configuration.ConfigurationSection;
+import org.bukkit.configuration.file.YamlConfiguration;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.Inventory;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.scheduler.BukkitRunnable;
 
 import java.util.List;
+import java.util.Optional;
 
 public class WheelAnimation extends BukkitRunnable {
     private final Player player;
@@ -46,14 +48,18 @@ public class WheelAnimation extends BukkitRunnable {
         this.wheelName = wheelName;
         this.winnerKey = winnerKey;
 
-        ConfigurationSection settings = plugin.getConfig().getConfigurationSection("wheels." + wheelName + ".settings");
+        YamlConfiguration wheelConfig = plugin.getWheelConfigManager()
+                .getWheelConfig(wheelName)
+                .orElseThrow(() -> new IllegalArgumentException("Roue introuvable: " + wheelName));
+
+        ConfigurationSection settings = wheelConfig.getConfigurationSection("settings");
         this.totalTicks = settings != null ? settings.getInt("total-ticks", 55) : 55;
         this.delay = settings != null ? settings.getInt("animation-speed", 1) : 1;
         this.increment = settings != null ? settings.getInt("slowdown-ticks", 2) : 2;
         this.startDelay = settings != null ? settings.getInt("start-delay-ticks", 30) : 30;
         this.winningSlot = settings != null ? settings.getInt("winning-slot", 5) : 5;
 
-        ConfigurationSection prize = plugin.getConfig().getConfigurationSection("wheels." + wheelName + ".prizes." + winnerKey);
+        ConfigurationSection prize = wheelConfig.getConfigurationSection("prizes." + winnerKey);
         this.winningItem = prize != null ? InventoryManager.createItemFromConfig(prize) : new ItemStack(Material.STONE);
 
         this.totalCycles = calculateTotalCycles();
@@ -125,8 +131,13 @@ public class WheelAnimation extends BukkitRunnable {
     }
 
     private void finish() {
+        Optional<YamlConfiguration> configOpt = plugin.getWheelConfigManager().getWheelConfig(wheelName);
+        if (configOpt.isEmpty())
+            return;
+
         ConfigurationSection prize = plugin.getConfig().getConfigurationSection("wheels." + wheelName + ".prizes." + winnerKey);
-        if (prize == null) return;
+        if (prize == null)
+            return;
 
         String customSound = prize.getString("sound");
         if (customSound != null) {

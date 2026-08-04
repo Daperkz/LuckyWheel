@@ -10,6 +10,7 @@ package com.daperkz.luckywheel;
 
 import com.daperkz.luckywheel.command.CommandHandler;
 import com.daperkz.luckywheel.command.WheelTabCompleter;
+import com.daperkz.luckywheel.config.WheelConfigManager;
 import com.daperkz.luckywheel.listener.InventoryClickListener;
 import org.bukkit.NamespacedKey;
 import org.bukkit.plugin.java.JavaPlugin;
@@ -18,14 +19,17 @@ public class LuckyWheelPlugin extends JavaPlugin {
     public static NamespacedKey TICKET_KEY;
     public static NamespacedKey OWNER_KEY;
 
+    private WheelConfigManager wheelConfigManager;
+
     @Override
     public void onEnable() {
-
-        // Crée le dossier de config et copie le config.yml par défaut s'il n'existe pas
         saveDefaultConfig();
 
         TICKET_KEY = new NamespacedKey(this, "wheel_ticket");
-        OWNER_KEY = new NamespacedKey(JavaPlugin.getPlugin(LuckyWheelPlugin.class), "owner");
+        OWNER_KEY = new NamespacedKey(this, "owner");
+
+        this.wheelConfigManager = new WheelConfigManager(this);
+        this.wheelConfigManager.loadWheels();
 
         if (getCommand("luckywheel") != null) {
             getCommand("luckywheel").setExecutor(new CommandHandler(this));
@@ -39,8 +43,13 @@ public class LuckyWheelPlugin extends JavaPlugin {
 
     public void reloadPluginConfig() {
         reloadConfig();
+        wheelConfigManager.loadWheels();
         getServer().getScheduler().cancelTasks(this);
-        getLogger().info("Configuration rechargée et tâches résiduelles annulées !");
+        getLogger().info("Configuration et roues rechargées !");
+    }
+
+    public WheelConfigManager getWheelConfigManager() {
+        return wheelConfigManager;
     }
 
     @Override

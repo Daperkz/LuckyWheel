@@ -14,6 +14,7 @@ import net.kyori.adventure.text.minimessage.MiniMessage;
 import net.kyori.adventure.text.serializer.legacy.LegacyComponentSerializer;
 import org.bukkit.Material;
 import org.bukkit.configuration.ConfigurationSection;
+import org.bukkit.configuration.file.YamlConfiguration;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.EquipmentSlot;
 import org.bukkit.inventory.ItemStack;
@@ -63,12 +64,12 @@ public class InventoryManager {
      * @return true if successfully consumed, false otherwise.
      */
     public static boolean tryConsumeTicket(Player player, EquipmentSlot hand, String expectedWheel) {
-        ItemStack item = (hand == EquipmentSlot.OFF_HAND) 
-                ? player.getInventory().getItemInOffHand() 
+        ItemStack item = (hand == EquipmentSlot.OFF_HAND)
+                ? player.getInventory().getItemInOffHand()
                 : player.getInventory().getItemInMainHand();
 
         Optional<String> ticketWheelOpt = getTicketWheel(item);
-        
+
         if (ticketWheelOpt.isEmpty()) {
             return false;
         }
@@ -99,8 +100,14 @@ public class InventoryManager {
     }
 
     public static ItemStack getRandomPrize(LuckyWheelPlugin plugin, String wheelName) {
-        ConfigurationSection prizes = plugin.getConfig().getConfigurationSection("wheels." + wheelName + ".prizes");
-        if (prizes == null) return new ItemStack(Material.STONE);
+        Optional<YamlConfiguration> configOpt = plugin.getWheelConfigManager().getWheelConfig(wheelName);
+        if (configOpt.isEmpty())
+            return new ItemStack(Material.STONE);
+
+        YamlConfiguration config = configOpt.get();
+        ConfigurationSection prizes = config.getConfigurationSection("prizes");
+        if (prizes == null)
+            return new ItemStack(Material.STONE);
 
         double totalWeight = 0.0;
         for (String key : prizes.getKeys(false)) {
