@@ -73,7 +73,7 @@ public class SpinSubCommand implements SubCommand {
 
         String winnerKey = WheelManager.getPrize(prizesMap);
         WheelAnimation animation = new WheelAnimation(plugin, player, wheelName, winnerKey);
-        animation.runTaskTimer(plugin, 0L, 2L);
+        animation.start();
     }
 
     @Override
