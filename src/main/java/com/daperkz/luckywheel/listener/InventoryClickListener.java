@@ -74,7 +74,7 @@ public class InventoryClickListener implements Listener {
                 }
             }
             String winnerKey = WheelManager.getPrize(prizesMap);
-            new WheelAnimation(plugin, player, wheelName, winnerKey).runTaskTimer(plugin, 0L, 2L);
+            new WheelAnimation(plugin, player, wheelName, winnerKey).start();
         }
     }
 

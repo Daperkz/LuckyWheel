@@ -11,6 +11,7 @@ package com.daperkz.luckywheel.wheel;
 import com.daperkz.luckywheel.LuckyWheelPlugin;
 import com.daperkz.luckywheel.manager.InventoryManager;
 import com.daperkz.luckywheel.manager.SoundManager;
+import io.papermc.paper.threadedregions.scheduler.ScheduledTask;
 import net.kyori.adventure.text.minimessage.MiniMessage;
 import org.bukkit.Bukkit;
 import org.bukkit.Material;
@@ -19,12 +20,11 @@ import org.bukkit.configuration.file.YamlConfiguration;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.Inventory;
 import org.bukkit.inventory.ItemStack;
-import org.bukkit.scheduler.BukkitRunnable;
 
 import java.util.List;
 import java.util.Optional;
 
-public class WheelAnimation extends BukkitRunnable {
+public class WheelAnimation implements Runnable {
     private final Player player;
     private final String wheelName;
     private final LuckyWheelPlugin plugin;
@@ -39,8 +39,10 @@ public class WheelAnimation extends BukkitRunnable {
     private final int startDelay;
     private final int winningSlot;
     private final ItemStack winningItem;
-    private int totalCycles = 0;
+    private final int totalCycles;
     private int currentCycle = 0;
+
+    private ScheduledTask scheduledTask;
 
     public WheelAnimation(LuckyWheelPlugin plugin, Player player, String wheelName, String winnerKey) {
         this.plugin = plugin;
@@ -69,6 +71,10 @@ public class WheelAnimation extends BukkitRunnable {
         player.openInventory(inv);
     }
 
+    public void start() {
+        this.scheduledTask = player.getScheduler().runAtFixedRate(plugin, (task) -> this.run(), null, 1L, 2L);
+    }
+
     private int calculateTotalCycles() {
         int simulatedTicks = 0;
         int simulatedDelay = this.delay;
@@ -92,12 +98,12 @@ public class WheelAnimation extends BukkitRunnable {
     @Override
     public void run() {
         if (!player.isOnline()) {
-            this.cancel();
+            cancel();
             return;
         }
 
         if (ticks >= this.totalTicks) {
-            this.cancel();
+            cancel();
             finish();
             return;
         }
@@ -114,6 +120,12 @@ public class WheelAnimation extends BukkitRunnable {
         }
         currentDelayCount++;
         ticks++;
+    }
+
+    private void cancel() {
+        if (scheduledTask != null) {
+            scheduledTask.cancel();
+        }
     }
 
     private void updateInventoryVisuals() {
@@ -150,7 +162,9 @@ public class WheelAnimation extends BukkitRunnable {
         if (!commands.isEmpty()) {
             for (String cmd : commands) {
                 String formattedCmd = cmd.replace("%player%", player.getName());
-                Bukkit.dispatchCommand(Bukkit.getConsoleSender(), formattedCmd);
+                Bukkit.getGlobalRegionScheduler().run(plugin, scheduled ->
+                    Bukkit.dispatchCommand(Bukkit.getConsoleSender(), formattedCmd)
+                );
             }
         } else if (winningItem.getType() != Material.BARRIER) {
             player.getInventory().addItem(winningItem);

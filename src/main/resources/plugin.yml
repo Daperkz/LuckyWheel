@@ -9,21 +9,22 @@ name: LuckyWheel
 version: '${project.version}'
 main: com.daperkz.luckywheel.LuckyWheelPlugin
 api-version: 1.20
+folia-supported: true
 author: Daperkz
 description: fully customizable lucky wheel plugin
 
 permissions:
   Daperkz.luckywheel:
-    description: Permission d'utiliser /luckywheel
+    description: Permission to use /luckywheel
     default: true
   Daperkz.luckywheel.admin:
-    description: Permission de recharger le plugin et /give
+    description: Permission to reload plugin and to give
     default: op
 
 commands:
   luckywheel:
-    description: "Commande principale de LuckyWheel"
+    description: "Main luckywheel command"
     permission: Daperkz.luckywheel
-    permission-message: "<red>Tu n'as pas la permission d'utiliser cette commande."
+    permission-message: "<red>You do not have permission to use this command."
     usage: "/luckywheel <spin|give|reload> [arguments...]"
     aliases: [lw]
