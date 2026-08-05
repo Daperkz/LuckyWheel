@@ -1,11 +1,11 @@
 # ==============================================================================
-# LuckyWheelCustom - Java Minecraft Plugin
+# LuckyWheel - Java Minecraft Plugin
 # Copyright (c) 2026 Daperkz
 #
 # plugin
 # ==============================================================================
 
-name: LuckyWheelCustom
+name: LuckyWheel
 version: '${project.version}'
 main: com.daperkz.luckywheel.LuckyWheelPlugin
 api-version: 1.20

@@ -1,6 +1,6 @@
 /*
 * ==============================================================================
-* LuckyWheelCustom - Minecraft Plugin
+* LuckyWheel - Minecraft Plugin
 * Copyright (c) 2026 Daperkz
 *
 * LuckyWheelPlugin
@@ -37,7 +37,7 @@ public class LuckyWheelPlugin extends JavaPlugin {
         }
 
         getServer().getPluginManager().registerEvents(new InventoryClickListener(this), this);
-        getLogger().info("LuckyWheelCustom a été activé avec succès !");
+        getLogger().info("LuckyWheel a été activé avec succès !");
 
     }
 
@@ -55,6 +55,6 @@ public class LuckyWheelPlugin extends JavaPlugin {
     @Override
     public void onDisable() {
         getServer().getScheduler().cancelTasks(this);
-        getLogger().info("LuckyWheelCustom a été désactivé.");
+        getLogger().info("LuckyWheel a été désactivé.");
     }
 }

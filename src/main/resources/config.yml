@@ -1,12 +1,12 @@
 # ==============================================================================
-# LuckyWheelCustom - Java Minecraft Plugin
+# LuckyWheel - Java Minecraft Plugin
 # Copyright (c) 2026 Daperkz
 #
 # config
 # ==============================================================================
 
 # ==============================================================================
-# LuckyWheelCustom - Main Configuration
+# LuckyWheel - Main Configuration
 # ==============================================================================
 settings:
   debug: false

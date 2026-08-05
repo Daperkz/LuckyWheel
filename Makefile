@@ -1,11 +1,11 @@
 # ==============================================================================
-# LuckyWheelCustom - Java Minecraft Plugin
+# LuckyWheel - Java Minecraft Plugin
 # Copyright (c) 2026 Daperkz
 #
 # Makefile
 # ==============================================================================
 
-PROJECT_NAME = LuckyWheelCustom
+PROJECT_NAME = LuckyWheel
 
 all: build
 

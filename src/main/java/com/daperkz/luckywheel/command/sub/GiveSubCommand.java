@@ -1,6 +1,6 @@
 /*
 * ==============================================================================
-* LuckyWheelCustom - Minecraft Plugin
+* LuckyWheel - Minecraft Plugin
 * Copyright (c) 2026 Daperkz
 *
 * GiveSubCommand
