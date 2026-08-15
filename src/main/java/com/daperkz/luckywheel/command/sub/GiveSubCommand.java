@@ -22,6 +22,7 @@ import org.bukkit.inventory.meta.ItemMeta;
 import org.bukkit.persistence.PersistentDataType;
 
 import java.util.Optional;
+import java.util.List;
 
 public class GiveSubCommand implements SubCommand {
     private final LuckyWheelPlugin plugin;
@@ -91,6 +92,28 @@ public class GiveSubCommand implements SubCommand {
         }
 
         String prizeId = (args.length >= 5) ? args[4] : null;
+
+        if (prizeId != null) {
+            Optional<YamlConfiguration> configOpt = plugin.getWheelConfigManager().getWheelConfig(wheelName);
+            if (configOpt.isPresent()) {
+                YamlConfiguration config = configOpt.get();
+                ConfigurationSection prizeSection = config.getConfigurationSection("prizes." + prizeId);
+
+                if (prizeSection != null && prizeSection.contains("commands")) {
+                    List<String> commands = prizeSection.getStringList("commands");
+                    for (int i = 0; i < amount; i++) {
+                        for (String cmd : commands) {
+                            String formattedCmd = cmd.replace("%player%", target.getName());
+                            Bukkit.dispatchCommand(Bukkit.getConsoleSender(), formattedCmd);
+                        }
+                    }
+
+                    sender.sendMessage(MiniMessage.miniMessage().deserialize(
+                            "<green>Exécuté les commande(s) du prix '" + prizeId + "' (" + amount + "x) pour " + target.getName()));
+                    return;
+                }
+            }
+        }
 
         ItemStack item = createItem(wheelName, prizeId, amount, target.getUniqueId().toString());
         target.getInventory().addItem(item);
