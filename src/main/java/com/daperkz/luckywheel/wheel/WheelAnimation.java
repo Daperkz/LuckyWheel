@@ -153,7 +153,9 @@ public class WheelAnimation implements Runnable {
 
         String customSound = prize.getString("sound");
         if (customSound != null) {
-            SoundManager.playDirectSound(player, customSound);
+            float volume = (float) prize.getDouble("sound-volume", 1.0);
+            float pitch = (float) prize.getDouble("sound-pitch", 1.0);
+            SoundManager.playDirectSound(player, customSound, volume, pitch);
         } else {
             SoundManager.playConfigSound(player, plugin, wheelName, "win_default");
         }

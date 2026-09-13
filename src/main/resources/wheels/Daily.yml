@@ -15,9 +15,18 @@ settings:
   winning-slot: 5
 
 sounds:
-  open: "BLOCK_CHEST_OPEN"
-  spin: "BLOCK_NOTE_BLOCK_PLING"
-  win_default: "ENTITY_EXPERIENCE_ORB_PICKUP"
+  open:
+    sound: "BLOCK_CHEST_OPEN"
+    volume: 0.8
+    pitch: 1.0
+  spin:
+    sound: "BLOCK_NOTE_BLOCK_PLING"
+    volume: 0.6
+    pitch: 1.4
+  win_default:
+    sound: "ENTITY_EXPERIENCE_ORB_PICKUP"
+    volume: 1.0
+    pitch: 1.0
 
 ticket:
   material: PAPER
@@ -37,6 +46,8 @@ prizes:
     quantity: 1
     chance: 1000 # 0.1%
     sound: "ENTITY_PLAYER_LEVELUP"
+    sound-volume: 1.0
+    sound-pitch: 1.0
   prize2:
     material: SPAWNER
     quantity: 1
