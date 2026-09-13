@@ -167,7 +167,8 @@ public class WheelAnimation implements Runnable {
                 );
             }
         } else if (winningItem.getType() != Material.BARRIER) {
-            player.getInventory().addItem(winningItem);
+            player.getInventory().addItem(winningItem).values()
+                    .forEach(item -> player.getWorld().dropItemNaturally(player.getLocation(), item));
         }
 
         player.sendMessage(MiniMessage.miniMessage().deserialize("<green>La roue s'est arrêtée ! Vous remportez votre prix."));
