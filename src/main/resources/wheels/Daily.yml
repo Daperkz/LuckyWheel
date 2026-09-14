@@ -44,76 +44,76 @@ prizes:
   prize1:
     material: ENCHANTED_GOLDEN_APPLE
     quantity: 1
-    chance: 1000 # 0.1%
+    chance: 0.1
     sound: "ENTITY_PLAYER_LEVELUP"
     sound-volume: 1.0
     sound-pitch: 1.0
   prize2:
     material: SPAWNER
     quantity: 1
-    chance: 10 # 0.001%
+    chance: 0.001
     sound: "ENTITY_PLAYER_LEVELUP"
   prize3:
     material: NETHERITE_HOE
     quantity: 1
-    chance: 10000 # 1%
+    chance: 1 # 1%
   prize4:
     material: TRIDENT
     quantity: 1
-    chance: 1000 # 0.1%
+    chance: 0.1 # 0.1%
     sound: "ENTITY_PLAYER_LEVELUP"
   prize5:
     material: OAK_LOG
     quantity: 20
-    chance: 157900 # Base restante pour le reste
+    chance: 30.8889
   prize6:
     material: GOLDEN_APPLE
     quantity: 1
-    chance: 50000 # 5%
+    chance: 5
   prize7:
     material: ELYTRA
     quantity: 1
-    chance: 100 # 0.01%
+    chance: 0.01
     sound: "ENTITY_PLAYER_LEVELUP"
   prize8:
     material: DIAMOND
     quantity: 5
-    chance: 30000 # 3%
+    chance: 3
   prize9:
     material: COOKED_BEEF
     quantity: 9
-    chance: 300000 # 30%
+    chance: 30
   prize10:
     material: IRON_INGOT
     quantity: 3
-    chance: 300000 # 30%
+    chance: 30
   prize11:
     material: BREEZE_ROD
     quantity: 10
-    chance: 100000 # 10%
+    chance: 10
   prize12:
     material: TOTEM_OF_UNDYING
     quantity: 3
-    chance: 20000 # 2%
+    chance: 2
   prize13:
     material: OBSIDIAN
     quantity: 32
-    chance: 30000 # 3%
+    chance: 3
   prize14:
     material: BEDROCK
     quantity: 1
-    chance: 1 # Quasiment nul
+    chance: 0.0001
     sound: "ENTITY_PLAYER_LEVELUP"
   prize15:
     material: PAPER
     quantity: 1
-    chance: 50000 # 5%
+    chance: 5
     hologram: ["&d&lReroll Ticket", "&fUn nouveau ticket!"]
     commands: ["lw give Daily %player% 1 prize15"]
   prize16:
     material: BARRIER
     quantity: 1
-    chance: 100000 # 10%
+    chance: 10
     hologram: ["&c&lRien du tout", "&7Dommage..."]
     commands: ["say %player% a perdu!"]
     sound: "ENTITY_VILLAGER_NO"

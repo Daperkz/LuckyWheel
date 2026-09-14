@@ -11,22 +11,39 @@ package com.daperkz.luckywheel.manager;
 import java.util.Map;
 import java.util.Random;
 
-public class WheelManager {
-    public static String getPrize(Map<String, Integer> prizes) {
-        int totalWeight = 0;
-        for (int chance : prizes.values()) {
-            totalWeight += chance;
+public final class WheelManager {
+    private static final Random RANDOM = new Random();
+
+    private WheelManager() {
+    }
+
+    public static String getPrize(Map<String, Double> prizes) {
+        if (prizes == null || prizes.isEmpty()) {
+            return null;
         }
 
-        int randomValue = new Random().nextInt(totalWeight);
-        int currentWeight = 0;
+        double totalWeight = 0.0;
+        for (double chance : prizes.values()) {
+            totalWeight += Math.max(0.0, chance);
+        }
 
-        for (Map.Entry<String, Integer> entry : prizes.entrySet()) {
-            currentWeight += entry.getValue();
-            if (randomValue < currentWeight) {
+        if (totalWeight <= 0.0) {
+            return null;
+        }
+
+        double randomValue = RANDOM.nextDouble() * totalWeight;
+        double currentWeight = 0.0;
+
+        for (Map.Entry<String, Double> entry : prizes.entrySet()) {
+            currentWeight += Math.max(0.0, entry.getValue());
+            if (randomValue <= currentWeight) {
                 return entry.getKey();
             }
         }
-        return null;
+
+        return prizes.entrySet().stream()
+                .reduce((first, second) -> second)
+                .map(Map.Entry::getKey)
+                .orElse(null);
     }
 }

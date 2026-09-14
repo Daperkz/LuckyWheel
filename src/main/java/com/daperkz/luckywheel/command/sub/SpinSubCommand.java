@@ -21,7 +21,7 @@ import org.bukkit.entity.Player;
 import org.bukkit.inventory.EquipmentSlot;
 import org.bukkit.inventory.ItemStack;
 
-import java.util.HashMap;
+import java.util.LinkedHashMap;
 import java.util.Map;
 import java.util.Optional;
 
@@ -60,13 +60,16 @@ public class SpinSubCommand implements SubCommand {
             return;
         }
 
-        Map<String, Integer> prizesMap = new HashMap<>();
+        Map<String, Double> prizesMap = new LinkedHashMap<>();
         Optional<YamlConfiguration> configOpt = plugin.getWheelConfigManager().getWheelConfig(wheelName);
         if (configOpt.isPresent()) {
             ConfigurationSection section = configOpt.get().getConfigurationSection("prizes");
             if (section != null) {
                 for (String key : section.getKeys(false)) {
-                    prizesMap.put(key, section.getInt(key + ".chance"));
+                    ConfigurationSection prizeSection = section.getConfigurationSection(key);
+                    if (prizeSection != null) {
+                        prizesMap.put(key, com.daperkz.luckywheel.config.PrizeChance.fromConfig(prizeSection));
+                    }
                 }
             }
         }

@@ -9,6 +9,7 @@
 package com.daperkz.luckywheel.manager;
 
 import com.daperkz.luckywheel.LuckyWheelPlugin;
+import com.daperkz.luckywheel.config.PrizeChance;
 import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.minimessage.MiniMessage;
 import net.kyori.adventure.text.serializer.legacy.LegacyComponentSerializer;
@@ -23,7 +24,9 @@ import org.bukkit.persistence.PersistentDataContainer;
 import org.bukkit.persistence.PersistentDataType;
 
 import java.util.ArrayList;
+import java.util.LinkedHashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
 
 public class InventoryManager {
@@ -101,30 +104,32 @@ public class InventoryManager {
 
     public static ItemStack getRandomPrize(LuckyWheelPlugin plugin, String wheelName) {
         Optional<YamlConfiguration> configOpt = plugin.getWheelConfigManager().getWheelConfig(wheelName);
-        if (configOpt.isEmpty())
+        if (configOpt.isEmpty()) {
             return new ItemStack(Material.STONE);
+        }
 
         YamlConfiguration config = configOpt.get();
         ConfigurationSection prizes = config.getConfigurationSection("prizes");
-        if (prizes == null)
+        if (prizes == null) {
             return new ItemStack(Material.STONE);
-
-        double totalWeight = 0.0;
-        for (String key : prizes.getKeys(false)) {
-            totalWeight += prizes.getDouble(key + ".chance", 1.0);
         }
 
-        double random = Math.random() * totalWeight;
-        double currentWeight = 0.0;
-
+        Map<String, Double> prizeWeights = new LinkedHashMap<>();
         for (String key : prizes.getKeys(false)) {
-            currentWeight += prizes.getDouble(key + ".chance", 1.0);
-            if (currentWeight >= random) {
-                ConfigurationSection prize = prizes.getConfigurationSection(key);
-                return prize != null ? createItemFromConfig(prize) : new ItemStack(Material.STONE);
+            ConfigurationSection prizeSection = prizes.getConfigurationSection(key);
+            if (prizeSection == null) {
+                continue;
             }
+            prizeWeights.put(key, PrizeChance.fromConfig(prizeSection));
         }
-        return new ItemStack(Material.STONE);
+
+        String winnerKey = WheelManager.getPrize(prizeWeights);
+        if (winnerKey == null) {
+            return new ItemStack(Material.STONE);
+        }
+
+        ConfigurationSection prize = prizes.getConfigurationSection(winnerKey);
+        return prize != null ? createItemFromConfig(prize) : new ItemStack(Material.STONE);
     }
 
     public static ItemStack createItemFromConfig(ConfigurationSection section) {
