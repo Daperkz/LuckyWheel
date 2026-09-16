@@ -8,14 +8,14 @@ README
 -->
 # `LuckyWheel` — Fully Customizable & Animated Wheel Plugin
 
-[![Build Status](https://img.shields.io/badge/build-passing-brightgreen?style=for-the-badge&logo=apachemaven)](https://github.com)
-[![Minecraft Support](https://img.shields.io/badge/minecraft-26.2%20--%2026.2-blue?style=for-the-badge&logo=minecraft)](https://papermc.io)
+[![Build Status](https://img.shields.io/badge/build-Gradle%209.1-brightgreen?style=for-the-badge&logo=gradle)](https://gradle.org/)
+[![Minecraft Support](https://img.shields.io/badge/minecraft-1.20.6%20%E2%80%93%2026.3-blue?style=for-the-badge&logo=minecraft)](https://papermc.io)
 [![Paper API](https://img.shields.io/badge/platform-Paper%20%2F%20Purpur-informational?style=for-the-badge&logo=paper)](https://purpurmc.org)
 [![Folia Ready](https://img.shields.io/badge/folia-supported-9cf?style=for-the-badge)](https://papermc.io/software/folia)
-[![Java Version](https://img.shields.io/badge/java-21-orange?style=for-the-badge&logo=openjdk)](https://www.oracle.com/java/)
+[![Java Version](https://img.shields.io/badge/java-21%20%2F%2025-orange?style=for-the-badge&logo=openjdk)](https://www.oracle.com/java/)
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg?style=for-the-badge)](https://opensource.org/licenses/MIT)
 
-`LuckyWheel` is a high-performance, feature-rich Minecraft plugin developed for **Paper / Purpur (1.20 - 26.2+)** servers running Java 21. Featuring real-time GUI slot animations, custom item NBT/PersistentDataContainer verification, weighted prize probability, sound effects, command execution, and full **Folia multi-threading compatibility**, `LuckyWheel` provides an engaging casino-style wheel spinning experience for your players.
+`LuckyWheel` is a high-performance, feature-rich Minecraft plugin developed for **Paper / Purpur / Folia**. The build produces separate JARs for Minecraft `1.20.6`, `1.21`, `1.21.1`, `1.21.4`, `26.1`, `26.2`, and `26.3` (alpha). Older targets use Java 21 bytecode; 26.x targets use Java 25 bytecode.
 
 > ⚡ **Paper & Folia Ready**: Built from the ground up to support both traditional Paper tick loops and Folia region-based execution models via Kyori MiniMessage, global region schedulers, and entity-scheduled inventory interactions.
 
@@ -56,7 +56,9 @@ LuckyWheel/
 │   └── workflows/
 │       └── ci.yml                  # GitHub Actions CI/CD Pipeline (Build & Release)
 ├── Makefile                        # Compilation & packaging shortcut recipes
-├── pom.xml                         # Maven build configuration (Java 21, Paper-API 1.21+)
+├── build.gradle.kts                 # Kotlin DSL build and Paper API version matrix
+├── settings.gradle.kts              # Gradle repositories and project settings
+├── gradlew                          # Gradle Wrapper entry point
 ├── src/
 │   └── main/
 │       ├── java/
@@ -111,35 +113,62 @@ LuckyWheel/
 
 To build and run `LuckyWheel`, ensure your server environment meets the following requirements:
 
-- **Java Development Kit (JDK)**: JDK 21 or newer
-- **Build System**: Apache Maven (v3.8+) or GNU Make
-- **Minecraft Server Engine**: Paper, Purpur, or Folia (`1.20` – `26.2+`)
+- **Java Development Kit (JDK)**: Java 25 for the default all-version build; Java 21 for 1.20/1.21-only builds
+- **Build System**: Gradle Wrapper 9.1 and GNU Make
+- **Minecraft Server Engine**: Paper, Purpur, or Folia (`1.20.6` – `26.3`)
 
 ---
 
 ## Build System & Compilation
 
-The repository includes a `Makefile` to simplify packaging and cleaning routines via Maven.
+The repository uses the Gradle Wrapper and Kotlin DSL (`build.gradle.kts`, `settings.gradle.kts`). `make` checks for the required JDK and downloads a project-local Eclipse Temurin JDK into `.tools/` when necessary.
 
 ### Build Commands
 
 ```bash
-# Compile the plugin and package the JAR file
-make
+# Compile all configured Minecraft versions
+make build
 
-# Alternatively, package directly using Maven
-mvn clean package
+# Clean the Gradle build directory
+./gradlew clean
 
-# Clean target build directory
+# Package one JAR per configured Minecraft version
+make jar
+
 make clean
-
-# Full clean and rebuild
 make re
 ```
 
-Upon successful compilation, the output `.jar` file will be generated under the `./target/` directory:
+The versioned JAR files are generated under `./build/libs/`, for example `LuckyWheel-1.20.6-1.2.3.jar`.
+
+### Compiling for Multiple Java Versions
+
+The default matrix contains Paper APIs for Minecraft 1.20.6, 1.21, 1.21.1, 1.21.4, 26.1, 26.2, and 26.3. The 26.3 API is currently an alpha release. Minecraft 1.20/1.21 JARs target Java 21; 26.x JARs target Java 25. Configure another matrix with `PAPER_VERSIONS`; entries use `minecraftVersion[:paperApiVersion]`:
+
+```bash
+# Build the default matrix
+make jar
+
+# Build a selected matrix
+make jar PAPER_VERSIONS="1.21,1.21.4"
+make jar PAPER_VERSIONS="1.20.6:1.20.6-R0.1-SNAPSHOT,1.21.4:1.21.4-R0.1-SNAPSHOT"
+make jar PAPER_VERSIONS="26.1:26.1.2.build.74-stable,26.2:26.2.build.124-stable,26.3:26.3.build.8-alpha"
+
+# The default compiler JDK is Java 25 because Paper 26.x requires it
+make jar
+
+# Build only older releases with Java 21
+make jar JAVA_VERSION=21 PAPER_VERSIONS="1.20.6,1.21,1.21.1,1.21.4"
+
+# See which JDKs Gradle can detect
+./gradlew javaToolchains
+```
+
+The selected JDK must be a full JDK, not a JRE. `make` requires `curl` and `tar` only when it needs to download one. The downloaded JDK is ignored by Git. Each JAR is compiled independently against its Paper API, so a newer API cannot accidentally leak into older-version builds.
+
+Upon successful compilation, the output `.jar` file will be generated under the `./build/libs/` directory:
 ```text
-target/LuckyWheel-1.1.4.jar
+build/libs/LuckyWheel-*.*.*.jar
 ```
 
 ---

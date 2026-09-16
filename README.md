@@ -1,10 +1,10 @@
 ![Daperkz's LuckyWheel Banner](./assets/daperkzs_luckywheelV1.png)
 
-[![Build Status](https://img.shields.io/badge/build-passing-brightgreen?style=for-the-badge&logo=apachemaven)](https://github.com)
-[![Minecraft Support](https://img.shields.io/badge/minecraft-26.2%2B-blue?style=for-the-badge&logo=minecraft)](https://papermc.io)
+[![Build Status](https://img.shields.io/badge/build-Gradle%209.1-brightgreen?style=for-the-badge&logo=gradle)](https://gradle.org/)
+[![Minecraft Support](https://img.shields.io/badge/minecraft-1.20.6%20%E2%80%93%2026.3-blue?style=for-the-badge&logo=minecraft)](https://papermc.io)
 [![Platform](https://img.shields.io/badge/platform-Paper%20%2F%20Purpur-informational?style=for-the-badge&logo=paper)](https://purpurmc.org)
 [![Folia Ready](https://img.shields.io/badge/folia-supported-9cf?style=for-the-badge)](https://papermc.io/software/folia)
-[![Java Version](https://img.shields.io/badge/java-21-orange?style=for-the-badge&logo=openjdk)](https://www.oracle.com/java/)
+[![Java Version](https://img.shields.io/badge/java-21%20%2F%2025-orange?style=for-the-badge&logo=openjdk)](https://www.oracle.com/java/)
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg?style=for-the-badge)](https://opensource.org/licenses/MIT)
 
 ---
@@ -13,7 +13,9 @@
 
 Most reward wheel and loot crate plugins feel rigid, outdated, or hard to customize. They force standard layouts, lack real fluid animations, or risk item duping and exploits through weak item handling.
 
-**Daperkz's LuckyWheel** was created to change that. Built natively for Minecraft 26.2+, it brings a polished, casino-style sliding GUI animation to your server while placing complete customizability and security in your hands.
+**Daperkz's LuckyWheel** was created to change that. It brings a polished, casino-style sliding GUI animation to Paper, Purpur, and Folia servers while placing complete customizability and security in your hands.
+
+The project publishes one JAR per supported Minecraft/Paper API version: `1.20.6`, `1.21`, `1.21.1`, `1.21.4`, `26.1`, `26.2`, and `26.3` (alpha). Use the JAR matching the server version.
 
 ---
 
@@ -30,7 +32,7 @@ Most reward wheel and loot crate plugins feel rigid, outdated, or hard to custom
 
 ## 🚀 Quick Start & Installation
 
-1. **Download** the latest `LuckyWheel-x.x.x.jar`.
+1. **Download** the JAR matching your server, for example `LuckyWheel-26.2-1.2.3.jar`.
 2. Place the `.jar` file into your server's `/plugins/` directory.
 3. Restart your server to generate default files and the default `wheels/Daily.yml` wheel.
 4. Issue a ticket to yourself using `/luckywheel give Daily <your_name> 1`.
@@ -47,6 +49,23 @@ Most reward wheel and loot crate plugins feel rigid, outdated, or hard to custom
 | `/luckywheel reload` | Reloads main config and all custom wheel YML files instantly. | `Daperkz.luckywheel.admin` *(OP)* |
 
 *Shortcut Alias:* `/lw`
+
+## 🛠️ Building From Source
+
+The project uses the Gradle Wrapper and Kotlin DSL. The Makefile provisions a project-local Eclipse Temurin JDK when the required JDK is not installed.
+
+```bash
+# Build one JAR for every configured Minecraft version
+make jar
+
+# Build only selected versions
+make jar PAPER_VERSIONS="1.21,1.21.4"
+
+# Clean generated output
+make clean
+```
+
+JARs are written to `build/libs/`. Minecraft `1.20.x` and `1.21.x` targets use Java 21 bytecode; Minecraft `26.x` targets use Java 25 bytecode. The default build therefore provisions Java 25 automatically. The `26.3` target currently uses an alpha Paper API.
 
 ---
 
