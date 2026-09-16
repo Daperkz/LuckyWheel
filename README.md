@@ -35,7 +35,7 @@ The project publishes one JAR per supported Minecraft/Paper API version: `1.20.6
 1. **Download** the JAR matching your server, for example `LuckyWheel-26.2-1.2.3.jar`.
 2. Place the `.jar` file into your server's `/plugins/` directory.
 3. Restart your server to generate default files and the default `wheels/Daily.yml` wheel.
-4. Issue a ticket to yourself using `/luckywheel give Daily <your_name> 1`.
+4. Claim a daily ticket using `/luckywheel claim Daily` or alternatively Issue a ticket to yourself using `/luckywheel give Daily <your_name> 1` .
 5. Hold the ticket in your hand and **Right-Click** (or run `/luckywheel spin Daily`) to start the wheel!
 
 ---
@@ -44,6 +44,7 @@ The project publishes one JAR per supported Minecraft/Paper API version: `1.20.6
 
 | Command | Description | Default Permission |
 | :--- | :--- | :--- |
+| `/luckywheel claim <wheel>` | Grants one ticket when the configured claim cooldown has expired. | `Daperkz.luckywheel` *(True)* |
 | `/luckywheel spin <wheel>` | Consumes 1 held ticket and triggers the wheel spin GUI. | `Daperkz.luckywheel` *(True)* |
 | `/luckywheel give <wheel> [player] [qty] [prize_id]` | Grants bound, secure PDC tickets to a target player. | `Daperkz.luckywheel.admin` *(OP)* |
 | `/luckywheel reload` | Reloads main config and all custom wheel YML files instantly. | `Daperkz.luckywheel.admin` *(OP)* |
@@ -70,6 +71,16 @@ JARs are written to `build/libs/`. Minecraft `1.20.x` and `1.21.x` targets use J
 ---
 
 ## ⚙️ Configuration Setup
+
+Claim persistence is configured in the main `config.yml`:
+
+```yaml
+claims:
+  storage: sqlite # Recommended. Use yaml for a simple file-based backend.
+  sqlite-file: claims.db
+```
+
+SQLite is recommended because claims are cached in memory and saved asynchronously on a single worker, while SQLite provides atomic updates and reliable persistence. Existing `claims.yml` data is imported automatically the first time SQLite is enabled. YAML remains available for small servers or simple manual inspection.
 
 `Daperkz's LuckyWheel` allows you to define infinite modular wheel files inside the `plugins/LuckyWheel/wheels/` folder. Here is an example setup (`Daily.yml`):
 

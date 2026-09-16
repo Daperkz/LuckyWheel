@@ -35,7 +35,7 @@ public class WheelTabCompleter implements TabCompleter {
         List<String> completions = new ArrayList<>();
 
         if (args.length == 1) {
-            List<String> subCommands = new ArrayList<>(List.of("spin"));
+            List<String> subCommands = new ArrayList<>(List.of("claim", "spin"));
             if (sender.hasPermission("Daperkz.luckywheel.admin")) {
                 subCommands.add("give");
                 subCommands.add("reload");
@@ -45,6 +45,8 @@ public class WheelTabCompleter implements TabCompleter {
             completeGive(args, completions);
         } else if (args[0].equalsIgnoreCase("spin")) {
             completeSpin(args, completions);
+        } else if (args[0].equalsIgnoreCase("claim")) {
+            completeClaim(args, completions);
         }
 
         Collections.sort(completions);
@@ -72,6 +74,12 @@ public class WheelTabCompleter implements TabCompleter {
     }
 
     private void completeSpin(String[] args, List<String> completions) {
+        if (args.length == 2) {
+            StringUtil.copyPartialMatches(args[1], plugin.getWheelConfigManager().getWheelNames(), completions);
+        }
+    }
+
+    private void completeClaim(String[] args, List<String> completions) {
         if (args.length == 2) {
             StringUtil.copyPartialMatches(args[1], plugin.getWheelConfigManager().getWheelNames(), completions);
         }

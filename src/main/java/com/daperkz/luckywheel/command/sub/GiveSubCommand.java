@@ -115,7 +115,9 @@ public class GiveSubCommand implements SubCommand {
             }
         }
 
-        ItemStack givenitem = createItem(wheelName, prizeId, amount, target.getUniqueId().toString());
+        ItemStack givenitem = prizeId == null
+            ? InventoryManager.createTicket(plugin, wheelName, target.getUniqueId(), amount)
+            : createItem(wheelName, prizeId, amount, target.getUniqueId().toString());
         target.getInventory().addItem(givenitem).values()
             .forEach(item -> target.getWorld().dropItemNaturally(target.getLocation(), item));
         sender.sendMessage(MiniMessage.miniMessage().deserialize("<green>Donné " + amount + " ticket(s) pour '" + wheelName + "' à " + target.getName()));

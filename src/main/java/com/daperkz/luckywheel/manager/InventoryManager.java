@@ -28,8 +28,36 @@ import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
+import java.util.UUID;
 
 public class InventoryManager {
+
+    public static void giveTicket(LuckyWheelPlugin plugin, Player player, String wheelName, int amount) {
+        ItemStack ticket = createTicket(plugin, wheelName, player.getUniqueId(), amount);
+        player.getInventory().addItem(ticket).values()
+                .forEach(item -> player.getWorld().dropItemNaturally(player.getLocation(), item));
+    }
+
+    public static ItemStack createTicket(LuckyWheelPlugin plugin, String wheelName, UUID owner, int amount) {
+        Optional<YamlConfiguration> configOpt = plugin.getWheelConfigManager().getWheelConfig(wheelName);
+        if (configOpt.isEmpty()) {
+            return new ItemStack(Material.PAPER, amount);
+        }
+
+        ConfigurationSection ticketSection = configOpt.get().getConfigurationSection("ticket");
+        ItemStack ticket = ticketSection != null
+                ? createItemFromConfig(ticketSection)
+                : new ItemStack(Material.PAPER);
+        ticket.setAmount(amount);
+
+        ItemMeta meta = ticket.getItemMeta();
+        if (meta != null) {
+            meta.getPersistentDataContainer().set(LuckyWheelPlugin.TICKET_KEY, PersistentDataType.STRING, wheelName);
+            meta.getPersistentDataContainer().set(LuckyWheelPlugin.OWNER_KEY, PersistentDataType.STRING, owner.toString());
+            ticket.setItemMeta(meta);
+        }
+        return ticket;
+    }
 
     public static Component parseText(String input) {
         if (input == null) return Component.empty();

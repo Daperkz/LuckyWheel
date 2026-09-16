@@ -5,12 +5,18 @@
 # Makefile
 # ==============================================================================
 
-PROJECT_NAME = LuckyWheel
-GRADLEW = ./gradlew
-JAVA_VERSION ?= 25
-JDK_DIR = $(CURDIR)/.tools/jdk-$(JAVA_VERSION)
-PAPER_VERSIONS ?=
-PAPER_ARGS = $(if $(PAPER_VERSIONS),-PpaperVersions=$(PAPER_VERSIONS),)
+PROJECT_NAME 	= LuckyWheel
+
+GRADLEW 		= ./gradlew
+RM				=	rm
+RMFLAGS			=	-rf
+
+JAVA_VERSION	?= 25
+JDK_DIR 		= $(CURDIR)/.tools/jdk-$(JAVA_VERSION)
+
+PAPER_VERSIONS	?=
+PAPER_ARGS 		= $(if $(PAPER_VERSIONS),-PpaperVersions=$(PAPER_VERSIONS),)
+
 GRADLE_JAVA_ARGS = -Dorg.gradle.java.installations.paths=$(CURDIR)/.tools/jdk-$(JAVA_VERSION)
 
 all: jar
@@ -52,6 +58,7 @@ bootstrap-jdk:
 
 clean: bootstrap-jdk
 	@JAVA_HOME="$(JDK_DIR)" PATH="$(JDK_DIR)/bin:$$PATH" $(GRADLEW) $(GRADLE_JAVA_ARGS) clean -PjavaVersion=$(JAVA_VERSION)
+	$(RM) $(RMFLAGS) .tools/
 
 re: clean jar
 

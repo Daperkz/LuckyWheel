@@ -14,6 +14,14 @@ settings:
   start-delay-ticks: 30
   winning-slot: 5
 
+claim:
+  enabled: true
+  cooldown: 24h
+  reminder:
+    enabled: true
+    interval: 60s
+    message: "<gold>Votre ticket Daily est disponible !"
+
 sounds:
   open:
     sound: "BLOCK_CHEST_OPEN"

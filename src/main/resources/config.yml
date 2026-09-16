@@ -10,3 +10,8 @@
 # ==============================================================================
 settings:
   debug: false
+
+claims:
+  # SQLite is recommended for persistence. Use "yaml" for a simple file-based store.
+  storage: sqlite
+  sqlite-file: claims.db

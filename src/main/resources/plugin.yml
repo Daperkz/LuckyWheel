@@ -26,5 +26,5 @@ commands:
     description: "Main luckywheel command"
     permission: Daperkz.luckywheel
     permission-message: "<red>You do not have permission to use this command."
-    usage: "/luckywheel <spin|give|reload> [arguments...]"
+    usage: "/luckywheel <claim|spin|give|reload> [arguments...]"
     aliases: [lw]

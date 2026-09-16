@@ -9,6 +9,7 @@
 package com.daperkz.luckywheel.command;
 
 import com.daperkz.luckywheel.LuckyWheelPlugin;
+import com.daperkz.luckywheel.command.sub.ClaimSubCommand;
 import com.daperkz.luckywheel.command.sub.GiveSubCommand;
 import com.daperkz.luckywheel.command.sub.ReloadSubCommand;
 import com.daperkz.luckywheel.command.sub.SpinSubCommand;
@@ -25,6 +26,7 @@ public class CommandHandler implements CommandExecutor {
     private final Map<String, SubCommand> subCommands = new HashMap<>();
 
     public CommandHandler(LuckyWheelPlugin plugin) {
+        registerSubCommand(new ClaimSubCommand(plugin));
         registerSubCommand(new GiveSubCommand(plugin));
         registerSubCommand(new SpinSubCommand(plugin));
         registerSubCommand(new ReloadSubCommand(plugin));
@@ -37,7 +39,7 @@ public class CommandHandler implements CommandExecutor {
     @Override
     public boolean onCommand(CommandSender sender, Command command, String label, String[] args) {
         if (args.length == 0) {
-            sender.sendMessage(MiniMessage.miniMessage().deserialize("<red>Utilisation: /luckywheel <spin|give|reload> ..."));
+            sender.sendMessage(MiniMessage.miniMessage().deserialize("<red>Utilisation: /luckywheel <claim|spin|give|reload> ..."));
             return true;
         }
 
@@ -49,7 +51,7 @@ public class CommandHandler implements CommandExecutor {
             }
             sub.execute(sender, args);
         } else {
-            sender.sendMessage("§cCommande inconnue. Utilisez /luckywheel <give|spin|reload> ...");
+            sender.sendMessage("§cCommande inconnue. Utilisez /luckywheel <claim|give|spin|reload> ...");
         }
         return true;
     }

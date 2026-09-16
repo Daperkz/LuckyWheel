@@ -15,7 +15,7 @@ plugins {
 }
 
 group = "com.daperkz"
-version = "1.2.3"
+version = "1.2.4"
 
 val javaVersion = providers.gradleProperty("javaVersion")
     .map(String::toInt)
@@ -60,14 +60,16 @@ val versionJarTasks = paperVersions.map { (minecraftVersion, paperApiVersion) ->
     val taskSuffix = minecraftVersion.replace(Regex("[^A-Za-z0-9]"), "_")
     val configurationName = "paperApi$taskSuffix"
     val apiConfiguration = configurations.create(configurationName)
+    val sqliteConfiguration = configurations.create("sqlite$taskSuffix")
     dependencies.add(apiConfiguration.name, "io.papermc.paper:paper-api:$paperApiVersion")
     dependencies.add(apiConfiguration.name, "org.jetbrains:annotations:26.0.2")
+    dependencies.add(sqliteConfiguration.name, "org.xerial:sqlite-jdbc:3.49.1.0")
     val targetJavaVersion = if (minecraftVersion.startsWith("26.")) 25 else 21
 
     val compileTask = tasks.register<JavaCompile>("compileJava$taskSuffix") {
         description = "Compile against Paper API $paperApiVersion for Minecraft $minecraftVersion."
         source = mainSourceSet.java
-        classpath = apiConfiguration
+        classpath = apiConfiguration + sqliteConfiguration
         destinationDirectory.set(layout.buildDirectory.dir("classes/java/$taskSuffix"))
         javaCompiler.set(javaToolchains.compilerFor(java.toolchain))
         options.encoding = "UTF-8"
@@ -83,6 +85,7 @@ val versionJarTasks = paperVersions.map { (minecraftVersion, paperApiVersion) ->
         from(mainSourceSet.resources) {
             expand("project" to mapOf("version" to project.version))
         }
+        from(sqliteConfiguration.files.map { dependency -> zipTree(dependency) })
     }
 
     jarTask
