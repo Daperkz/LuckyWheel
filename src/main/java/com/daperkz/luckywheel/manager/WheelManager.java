@@ -8,6 +8,8 @@
 */
 package com.daperkz.luckywheel.manager;
 
+import com.daperkz.luckywheel.config.PrizeChance;
+
 import java.util.Map;
 import java.util.Random;
 
@@ -22,8 +24,9 @@ public final class WheelManager {
             return null;
         }
 
+        Map<String, Double> normalizedPrizes = PrizeChance.normalizeWeights(prizes);
         double totalWeight = 0.0;
-        for (double chance : prizes.values()) {
+        for (double chance : normalizedPrizes.values()) {
             totalWeight += Math.max(0.0, chance);
         }
 
@@ -34,14 +37,14 @@ public final class WheelManager {
         double randomValue = RANDOM.nextDouble() * totalWeight;
         double currentWeight = 0.0;
 
-        for (Map.Entry<String, Double> entry : prizes.entrySet()) {
+        for (Map.Entry<String, Double> entry : normalizedPrizes.entrySet()) {
             currentWeight += Math.max(0.0, entry.getValue());
             if (randomValue <= currentWeight) {
                 return entry.getKey();
             }
         }
 
-        return prizes.entrySet().stream()
+        return normalizedPrizes.entrySet().stream()
                 .reduce((first, second) -> second)
                 .map(Map.Entry::getKey)
                 .orElse(null);
